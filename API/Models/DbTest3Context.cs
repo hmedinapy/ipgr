@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Models;
 
@@ -19,31 +21,21 @@ public partial class DbTest3Context : DbContext
 
     public virtual DbSet<Departamento> Departamentos { get; set; }
 
-    public virtual DbSet<Dependencium> Dependencia { get; set; }
-
-    public virtual DbSet<DetalleArea> DetalleAreas { get; set; }
-
     public virtual DbSet<Empresa> Empresas { get; set; }
 
-    public virtual DbSet<PlanTrabajo> PlanTrabajos { get; set; }
+    public virtual DbSet<PlanTrabajo> PlanesTrabajos { get; set; }
 
-    public virtual DbSet<PlanTrabajoPunto> PlanTrabajoPuntos { get; set; }
+    public virtual DbSet<PlanTrabajoPunto> PlanesTrabajosPuntos { get; set; }
 
     public virtual DbSet<Riesgo> Riesgos { get; set; }
 
-    public virtual DbSet<Rol> Rols { get; set; }
+    public virtual DbSet<Rol> Roles { get; set; }
 
     public virtual DbSet<UserRol> UserRols { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-
-    }
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-    //        => optionsBuilder.UseSqlServer("Data Source=W4Q0SL33;Initial Catalog=dbTest3;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +44,7 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("analisis_riesgo");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo).HasColumnName("activo");
             entity.Property(e => e.AgenteGenerador)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -93,13 +86,13 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("area");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("descripcion");
-            entity.Property(e => e.Estado)
-                .HasDefaultValue(true)
-                .HasColumnName("estado");
             entity.Property(e => e.IdDepartamento).HasColumnName("id_departamento");
             entity.Property(e => e.IdEmpresa).HasColumnName("id_empresa");
 
@@ -118,13 +111,13 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("departamento");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("descripcion");
-            entity.Property(e => e.Estado)
-                .HasDefaultValue(true)
-                .HasColumnName("estado");
             entity.Property(e => e.IdEmpresa).HasColumnName("id_empresa");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Departamentos)
@@ -133,42 +126,14 @@ public partial class DbTest3Context : DbContext
                 .HasConstraintName("FK_departamento_empresa");
         });
 
-        modelBuilder.Entity<Dependencium>(entity =>
-        {
-            entity.ToTable("dependencia");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("descripcion");
-        });
-
-        modelBuilder.Entity<DetalleArea>(entity =>
-        {
-            entity.ToTable("detalle_area");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("descripcion");
-            entity.Property(e => e.Estado)
-                .HasDefaultValue(true)
-                .HasColumnName("estado");
-            entity.Property(e => e.IdArea).HasColumnName("id_area");
-            entity.Property(e => e.IdUserModify).HasColumnName("id_user_modify");
-
-            entity.HasOne(d => d.IdAreaNavigation).WithMany(p => p.DetalleAreas)
-                .HasForeignKey(d => d.IdArea)
-                .HasConstraintName("FK_detalle_area_area");
-        });
-
         modelBuilder.Entity<Empresa>(entity =>
         {
             entity.ToTable("empresa");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
             entity.Property(e => e.CodigoEmpresa)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -177,9 +142,6 @@ public partial class DbTest3Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("direccion");
-            entity.Property(e => e.Estado)
-                .HasDefaultValue(true)
-                .HasColumnName("estado");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -208,6 +170,7 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("plan_trabajo");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo).HasColumnName("activo");
             entity.Property(e => e.CantidadPersonas).HasColumnName("cantidad_personas");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(255)
@@ -231,7 +194,7 @@ public partial class DbTest3Context : DbContext
             entity.Property(e => e.HorasNetas).HasColumnName("horas_netas");
             entity.Property(e => e.IdAreaAuditada).HasColumnName("id_area_auditada");
             entity.Property(e => e.IdAuditorAsignado).HasColumnName("id_auditor_asignado");
-            entity.Property(e => e.IdDependencia).HasColumnName("id_dependencia");
+            entity.Property(e => e.IdDepartamento).HasColumnName("id_departamento");
             entity.Property(e => e.IdDetalleArea).HasColumnName("id_detalle_area");
             entity.Property(e => e.IdResponsableAreaAuditada).HasColumnName("id_responsable_area_auditada");
             entity.Property(e => e.IdUserCreada).HasColumnName("id_user_creada");
@@ -254,13 +217,9 @@ public partial class DbTest3Context : DbContext
                 .HasForeignKey(d => d.IdAuditorAsignado)
                 .HasConstraintName("FK_plan_trabajo_usuario");
 
-            entity.HasOne(d => d.IdDependenciaNavigation).WithMany(p => p.PlanTrabajos)
-                .HasForeignKey(d => d.IdDependencia)
-                .HasConstraintName("FK_plan_trabajo_dependencia");
-
-            entity.HasOne(d => d.IdDetalleAreaNavigation).WithMany(p => p.PlanTrabajos)
-                .HasForeignKey(d => d.IdDetalleArea)
-                .HasConstraintName("FK_plan_trabajo_detalle_area");
+            entity.HasOne(d => d.IdDepartamentoNavigation).WithMany(p => p.PlanTrabajos)
+                .HasForeignKey(d => d.IdDepartamento)
+                .HasConstraintName("FK_plan_trabajo_departamento");
 
             entity.HasOne(d => d.IdResponsableAreaAuditadaNavigation).WithMany(p => p.PlanTrabajoIdResponsableAreaAuditadaNavigations)
                 .HasForeignKey(d => d.IdResponsableAreaAuditada)
@@ -272,6 +231,7 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("plan_trabajo_puntos");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo).HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(300)
                 .IsUnicode(false)
@@ -295,11 +255,11 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("riesgo");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo).HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("descripcion");
-            entity.Property(e => e.EmpresaRiesgo).HasColumnName("empresa_riesgo");
             entity.Property(e => e.UserCreado).HasColumnName("user_creado");
         });
 
@@ -308,13 +268,13 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("rol");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("descripcion");
-            entity.Property(e => e.Estado)
-                .HasDefaultValue(true)
-                .HasColumnName("estado");
         });
 
         modelBuilder.Entity<UserRol>(entity =>
@@ -322,9 +282,9 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("user_rol");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Estado)
+            entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
-                .HasColumnName("estado");
+                .HasColumnName("activo");
             entity.Property(e => e.IdRol).HasColumnName("id_rol");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
 
@@ -344,6 +304,9 @@ public partial class DbTest3Context : DbContext
             entity.ToTable("usuario");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
             entity.Property(e => e.Apellido)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -355,9 +318,6 @@ public partial class DbTest3Context : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("direccion");
-            entity.Property(e => e.Estado)
-                .HasDefaultValue(true)
-                .HasColumnName("estado");
             entity.Property(e => e.FechaCreada)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnName("fecha_creada");

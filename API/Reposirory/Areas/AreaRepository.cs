@@ -1,7 +1,5 @@
 ﻿using API.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
-using System.Xml.Linq;
 
 namespace API.Reposirory.Areas
 {

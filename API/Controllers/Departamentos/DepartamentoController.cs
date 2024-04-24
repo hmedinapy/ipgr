@@ -1,8 +1,9 @@
 using API.Controllers.Departamentos.Request;
 using API.Models;
+using API.Reposirory.Departamentos;
+using API.Reposirory.Empresas;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers.Departamentos;
 
@@ -11,12 +12,12 @@ namespace API.Controllers.Departamentos;
 public class DepartamentoController : ControllerBase
 {
     private readonly ILogger<DepartamentoController> _logger;
-    private readonly DbTest3Context db;
+    private readonly IDepartamentoRepository repository;
 
-    public DepartamentoController(ILogger<DepartamentoController> logger, DbTest3Context db)
+    public DepartamentoController(ILogger<DepartamentoController> logger, IDepartamentoRepository repository)
     {
         _logger = logger;
-        this.db = db;
+        this.repository = repository;
     }
 
     [HttpGet()]
@@ -24,7 +25,7 @@ public class DepartamentoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync()
     {
-        var documents = await db.Departamentos.ToListAsync();
+        var documents = await repository.GetAllAsync();
         if (!documents.Any())
             return this.NoContent();
 
@@ -37,7 +38,7 @@ public class DepartamentoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
-        var document = await db.Departamentos.FirstOrDefaultAsync(x => x.Id == id);
+        var document = await repository.GetOneAsync(id);
         if (document is null)
             return this.NoContent();
 
@@ -57,8 +58,7 @@ public class DepartamentoController : ControllerBase
 
         try
         {
-            db.Departamentos.Add(document);
-            await db.SaveChangesAsync();
+            await repository.AddRowAsync(document);
             return this.Ok(document);
         }
         catch (Exception e)
@@ -81,19 +81,16 @@ public class DepartamentoController : ControllerBase
             return this.BadRequest("Error en el parámetro.");
         }
 
-        var documentToUpdate = await db.Departamentos.FirstOrDefaultAsync(x => x.Id == Id);
+        var documentToUpdate = await repository.GetOneAsync(Id);
         if (documentToUpdate is null)
             return this.NoContent();
 
         documentToUpdate.Descripcion = rowUpsert.Descripcion;
         documentToUpdate.IdEmpresa = rowUpsert.IdEmpresa;
 
-        db.Entry(documentToUpdate).State = EntityState.Modified;
-
         try
         {
-            db.Departamentos.Update(documentToUpdate);
-            await db.SaveChangesAsync();
+            await repository.UpdateAsync(documentToUpdate);
             return this.Ok(documentToUpdate);
         }
         catch (Exception e)
@@ -108,7 +105,7 @@ public class DepartamentoController : ControllerBase
     [Route("{id}")]
     [ProducesResponseType(typeof(Response<Departamento>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] Departamento rowUpsert)
+    public async Task<ActionResult> PutAsync(string id, [FromBody] DepartamentoUpsert rowUpsert)
     {
         int Id = 0;
         if (!int.TryParse(id, out Id))
@@ -116,19 +113,16 @@ public class DepartamentoController : ControllerBase
             return this.BadRequest("Error en el parámetro.");
         }
 
-        var documentToUpdate = await db.Departamentos.FirstOrDefaultAsync(x => x.Id == Id);
+        var documentToUpdate = await repository.GetOneAsync(Id);
         if (documentToUpdate is null)
             return this.NoContent();
 
         documentToUpdate.Descripcion = rowUpsert.Descripcion;
         documentToUpdate.IdEmpresa = rowUpsert.IdEmpresa;
 
-        db.Entry(documentToUpdate).State = EntityState.Modified;
-
         try
         {
-            db.Departamentos.Update(documentToUpdate);
-            await db.SaveChangesAsync();
+            await repository.UpdateAsync(documentToUpdate);
             return this.Ok(documentToUpdate);
         }
         catch (Exception e)
@@ -145,14 +139,18 @@ public class DepartamentoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
-        var document = await db.Departamentos.FirstOrDefaultAsync(x => x.Id == id);
+        var document = await repository.GetOneAsync(id);
         if (document is null)
             return this.NoContent();
 
         try
         {
-            db.Departamentos.Remove(document);
-            await db.SaveChangesAsync();
+            // borrado lógico
+            document.Activo = false;
+            await repository.UpdateAsync(document);
+
+            // borrado fìsico
+            //await repository.RemoveAsync(document);
             return this.Ok(document);
         }
         catch (Exception e)
@@ -163,4 +161,3 @@ public class DepartamentoController : ControllerBase
         }
     }
 }
-

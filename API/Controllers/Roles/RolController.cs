@@ -1,30 +1,30 @@
-using API.Controllers.Empresas.Request;
+using API.Controllers.Roles.Request;
 using API.Models;
-using API.Reposirory.Empresas;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers.Empresas;
+namespace API.Controllers.Roles;
 
 [ApiController]
 [Route("[controller]")]
-public class EmpresaController : ControllerBase
+public class RolController : ControllerBase
 {
-    private readonly ILogger<EmpresaController> _logger;
-    private readonly IEmpresaRepository repository;
+    private readonly ILogger<RolController> _logger;
+    private readonly DbTest3Context db;
 
-    public EmpresaController(ILogger<EmpresaController> logger, IEmpresaRepository repository)
+    public RolController(ILogger<RolController> logger, DbTest3Context db)
     {
         _logger = logger;
-        this.repository = repository;
+        this.db = db;
     }
 
     [HttpGet()]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<List<Rol>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync()
     {
-        var documents = await repository.GetAllAsync();
+        var documents = await db.Roles.ToListAsync();
         if (!documents.Any())
             return this.NoContent();
 
@@ -33,11 +33,11 @@ public class EmpresaController : ControllerBase
 
     [HttpGet()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<List<Rol>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
-        var document = await repository.GetOneAsync(id);
+        var document = await db.Roles.FirstOrDefaultAsync(x => x.Id == id);
         if (document is null)
             return this.NoContent();
 
@@ -45,22 +45,19 @@ public class EmpresaController : ControllerBase
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<Rol>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PostAsync(EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PostAsync(RolUpsert rowUpsert)
     {
-        var document = new Empresa
+        var document = new Rol
         {
-            Nombre = rowUpsert.Nombre,
-            Ruc = rowUpsert.Ruc,
-            Telefono = rowUpsert.Telefono,
-            Direccion = rowUpsert.Direccion,
-            CodigoEmpresa = rowUpsert.CodigoEmpresa,
+            Descripcion = rowUpsert.Descripcion
         };
 
         try
         {
-            await repository.AddRowAsync(document);
+            db.Roles.Add(document);
+            await db.SaveChangesAsync();
             return this.Ok(document);
         }
         catch (Exception e)
@@ -73,9 +70,9 @@ public class EmpresaController : ControllerBase
 
     [HttpPatch()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<Rol>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(string id, [FromBody] RolUpsert rowUpsert)
     {
         int Id = 0;
         if (!int.TryParse(id, out Id))
@@ -83,19 +80,17 @@ public class EmpresaController : ControllerBase
             return this.BadRequest("Error en el parámetro.");
         }
 
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await db.Roles.FirstOrDefaultAsync(x => x.Id == Id);
         if (documentToUpdate is null)
             return this.NoContent();
 
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
+        documentToUpdate.Descripcion = rowUpsert.Descripcion;
+        db.Entry(documentToUpdate).State = EntityState.Modified;
 
         try
         {
-            await repository.UpdateAsync(documentToUpdate);
+            db.Roles.Update(documentToUpdate);
+            await db.SaveChangesAsync();
             return this.Ok(documentToUpdate);
         }
         catch (Exception e)
@@ -108,9 +103,9 @@ public class EmpresaController : ControllerBase
 
     [HttpPut()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<Rol>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(string id, [FromBody] Rol rowUpsert)
     {
         int Id = 0;
         if (!int.TryParse(id, out Id))
@@ -118,19 +113,17 @@ public class EmpresaController : ControllerBase
             return this.BadRequest("Error en el parámetro.");
         }
 
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await db.Roles.FirstOrDefaultAsync(x => x.Id == Id);
         if (documentToUpdate is null)
             return this.NoContent();
 
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
+        documentToUpdate.Descripcion = rowUpsert.Descripcion;
+        db.Entry(documentToUpdate).State = EntityState.Modified;
 
         try
         {
-            await repository.UpdateAsync(documentToUpdate);
+            db.Roles.Update(documentToUpdate);
+            await db.SaveChangesAsync();
             return this.Ok(documentToUpdate);
         }
         catch (Exception e)
@@ -143,22 +136,18 @@ public class EmpresaController : ControllerBase
 
     [HttpDelete()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<Rol>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
-        var document = await repository.GetOneAsync(id);
+        var document = await db.Roles.FirstOrDefaultAsync(x => x.Id == id);
         if (document is null)
             return this.NoContent();
 
         try
         {
-            // borrado lógico
-            document.Activo = false;
-            await repository.UpdateAsync(document);
-
-            // borrado fìsico
-            //await repository.RemoveAsync(document);
+            db.Roles.Remove(document);
+            await db.SaveChangesAsync();
             return this.Ok(document);
         }
         catch (Exception e)
@@ -169,3 +158,4 @@ public class EmpresaController : ControllerBase
         }
     }
 }
+

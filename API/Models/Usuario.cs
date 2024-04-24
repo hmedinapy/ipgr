@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace API.Models;
 
@@ -16,7 +17,7 @@ public partial class Usuario
 
     public string Clave { get; set; } = null!;
 
-    public bool Estado { get; set; }
+    public bool Activo { get; set; }
 
     public string Telefono { get; set; } = null!;
 
@@ -25,10 +26,10 @@ public partial class Usuario
     public string Direccion { get; set; } = null!;
 
     public DateOnly FechaCreada { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<PlanTrabajo> PlanTrabajoIdAuditorAsignadoNavigations { get; set; } = new List<PlanTrabajo>();
-    [JsonIgnore]
+
     public virtual ICollection<PlanTrabajo> PlanTrabajoIdResponsableAreaAuditadaNavigations { get; set; } = new List<PlanTrabajo>();
-    [JsonIgnore]
+
     public virtual ICollection<UserRol> UserRols { get; set; } = new List<UserRol>();
 }

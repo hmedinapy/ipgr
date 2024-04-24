@@ -1,4 +1,4 @@
-﻿namespace API.Controllers.Rols.Request;
+﻿namespace API.Controllers.Roles.Request;
 
 public class RolUpsert
 {

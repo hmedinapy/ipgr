@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace API.Controllers.PlanesTrabajos.Request;
 
-namespace API.Models;
-
-public partial class PlanTrabajo
+public class PlanTrabajoUpsert
 {
-    public int Id { get; set; }
-
     public int? Numero { get; set; }
 
     public string? Codigo { get; set; }
 
-    public int? IdDetalleArea { get; set; }
+    //public int? IdDetalleArea { get; set; }
 
     public int? IdDepartamento { get; set; }
 
@@ -36,22 +31,8 @@ public partial class PlanTrabajo
     public int? IdAreaAuditada { get; set; }
 
     public string Estado { get; set; } = null!;
-
+    public bool Activo { get; set; } = true;
     public string? EnvioInforme { get; set; }
-
     public DateOnly FechaCreada { get; set; }
-
     public int IdUserCreada { get; set; }
-
-    public bool? Activo { get; set; }
-
-    public virtual Area? IdAreaAuditadaNavigation { get; set; }
-
-    public virtual Usuario? IdAuditorAsignadoNavigation { get; set; }
-
-    public virtual Departamento? IdDepartamentoNavigation { get; set; }
-
-    public virtual Usuario? IdResponsableAreaAuditadaNavigation { get; set; }
-
-    public virtual ICollection<PlanTrabajoPunto> PlanTrabajoPuntos { get; set; } = new List<PlanTrabajoPunto>();
 }

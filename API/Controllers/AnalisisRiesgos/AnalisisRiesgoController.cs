@@ -1,26 +1,27 @@
-using API.Controllers.Empresas.Request;
+using API.Controllers.AnalisisRiesgos.Request;
 using API.Models;
-using API.Reposirory.Empresas;
+using API.Reposirory;
+using API.Reposirory.AnalisisRiesgos;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers.Empresas;
+namespace API.Controllers.AnalisisRiesgos;
 
 [ApiController]
 [Route("[controller]")]
-public class EmpresaController : ControllerBase
+public class AnalisisRiesgoController : ControllerBase
 {
-    private readonly ILogger<EmpresaController> _logger;
-    private readonly IEmpresaRepository repository;
+    private readonly ILogger<AnalisisRiesgoController> _logger;
+    private readonly IAnalisisRiesgoRepository repository;
 
-    public EmpresaController(ILogger<EmpresaController> logger, IEmpresaRepository repository)
+    public AnalisisRiesgoController(ILogger<AnalisisRiesgoController> logger, IAnalisisRiesgoRepository repository)
     {
         _logger = logger;
         this.repository = repository;
     }
 
     [HttpGet()]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<List<AnalisisRiesgo>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync()
     {
@@ -33,7 +34,7 @@ public class EmpresaController : ControllerBase
 
     [HttpGet()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<List<AnalisisRiesgo>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
@@ -45,17 +46,22 @@ public class EmpresaController : ControllerBase
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PostAsync(EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PostAsync(AnalisisRiesgoUpsert rowUpsert)
     {
-        var document = new Empresa
+        var document = new AnalisisRiesgo
         {
-            Nombre = rowUpsert.Nombre,
-            Ruc = rowUpsert.Ruc,
-            Telefono = rowUpsert.Telefono,
-            Direccion = rowUpsert.Direccion,
-            CodigoEmpresa = rowUpsert.CodigoEmpresa,
+            IdArea = rowUpsert.IdArea,
+            IdRiesgo = rowUpsert.IdRiesgo,
+            Significado = rowUpsert.Significado,
+            AgenteGenerador = rowUpsert.AgenteGenerador,
+            Causa = rowUpsert.Causa,
+            Efecto = rowUpsert.Efecto,
+            Probabilidad = rowUpsert.Probabilidad,
+            Impacto = rowUpsert.Impacto,
+            Resultado = rowUpsert.Resultado,
+            NivelRiesgo = rowUpsert.NivelRiesgo
         };
 
         try
@@ -73,9 +79,9 @@ public class EmpresaController : ControllerBase
 
     [HttpPatch()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(string id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
     {
         int Id = 0;
         if (!int.TryParse(id, out Id))
@@ -87,11 +93,16 @@ public class EmpresaController : ControllerBase
         if (documentToUpdate is null)
             return this.NoContent();
 
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
+        documentToUpdate.IdArea = rowUpsert.IdArea;
+        documentToUpdate.IdRiesgo = rowUpsert.IdRiesgo;
+        documentToUpdate.Significado = rowUpsert.Significado;
+        documentToUpdate.AgenteGenerador = rowUpsert.AgenteGenerador;
+        documentToUpdate.Causa = rowUpsert.Causa;
+        documentToUpdate.Efecto = rowUpsert.Efecto;
+        documentToUpdate.Probabilidad = rowUpsert.Probabilidad;
+        documentToUpdate.Impacto = rowUpsert.Impacto;
+        documentToUpdate.Resultado = rowUpsert.Resultado;
+        documentToUpdate.NivelRiesgo = rowUpsert.NivelRiesgo;
 
         try
         {
@@ -108,9 +119,9 @@ public class EmpresaController : ControllerBase
 
     [HttpPut()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(string id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
     {
         int Id = 0;
         if (!int.TryParse(id, out Id))
@@ -122,11 +133,16 @@ public class EmpresaController : ControllerBase
         if (documentToUpdate is null)
             return this.NoContent();
 
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
+        documentToUpdate.IdArea = rowUpsert.IdArea;
+        documentToUpdate.IdRiesgo = rowUpsert.IdRiesgo;
+        documentToUpdate.Significado = rowUpsert.Significado;
+        documentToUpdate.AgenteGenerador = rowUpsert.AgenteGenerador;
+        documentToUpdate.Causa = rowUpsert.Causa;
+        documentToUpdate.Efecto = rowUpsert.Efecto;
+        documentToUpdate.Probabilidad = rowUpsert.Probabilidad;
+        documentToUpdate.Impacto = rowUpsert.Impacto;
+        documentToUpdate.Resultado = rowUpsert.Resultado;
+        documentToUpdate.NivelRiesgo = rowUpsert.NivelRiesgo;
 
         try
         {
@@ -143,7 +159,7 @@ public class EmpresaController : ControllerBase
 
     [HttpDelete()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
@@ -169,3 +185,4 @@ public class EmpresaController : ControllerBase
         }
     }
 }
+

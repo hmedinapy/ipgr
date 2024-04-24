@@ -1,26 +1,27 @@
-using API.Controllers.Empresas.Request;
-using API.Models;
+using API.Controllers.PlanesTrabajosPuntos.Request;
+using API.Reposirory.PlanesTrabajosPuntos;
 using API.Reposirory.Empresas;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
+using API.Models;
 
-namespace API.Controllers.Empresas;
+namespace API.Controllers.PlanesTrabajosPuntos;
 
 [ApiController]
 [Route("[controller]")]
-public class EmpresaController : ControllerBase
+public class PlanTrabajoPuntoController : ControllerBase
 {
-    private readonly ILogger<EmpresaController> _logger;
-    private readonly IEmpresaRepository repository;
+    private readonly ILogger<PlanTrabajoPuntoController> _logger;
+    private readonly IPlanTrabajoPuntoRepository repository;
 
-    public EmpresaController(ILogger<EmpresaController> logger, IEmpresaRepository repository)
+    public PlanTrabajoPuntoController(ILogger<PlanTrabajoPuntoController> logger, IPlanTrabajoPuntoRepository repository)
     {
         _logger = logger;
         this.repository = repository;
     }
 
     [HttpGet()]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<List<PlanTrabajoPunto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync()
     {
@@ -33,7 +34,7 @@ public class EmpresaController : ControllerBase
 
     [HttpGet()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<List<PlanTrabajoPunto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
@@ -45,17 +46,14 @@ public class EmpresaController : ControllerBase
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PostAsync(EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PostAsync(PlanTrabajoPuntoUpsert rowUpsert)
     {
-        var document = new Empresa
+        var document = new PlanTrabajoPunto
         {
-            Nombre = rowUpsert.Nombre,
-            Ruc = rowUpsert.Ruc,
-            Telefono = rowUpsert.Telefono,
-            Direccion = rowUpsert.Direccion,
-            CodigoEmpresa = rowUpsert.CodigoEmpresa,
+            Descripcion = rowUpsert.Descripcion,
+            TipoPunto = rowUpsert.TipoPunto
         };
 
         try
@@ -73,9 +71,9 @@ public class EmpresaController : ControllerBase
 
     [HttpPatch()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(string id, [FromBody] PlanTrabajoPuntoUpsert rowUpsert)
     {
         int Id = 0;
         if (!int.TryParse(id, out Id))
@@ -87,11 +85,8 @@ public class EmpresaController : ControllerBase
         if (documentToUpdate is null)
             return this.NoContent();
 
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
+        documentToUpdate.Descripcion = rowUpsert.Descripcion;
+        documentToUpdate.TipoPunto = rowUpsert.TipoPunto;
 
         try
         {
@@ -108,9 +103,9 @@ public class EmpresaController : ControllerBase
 
     [HttpPut()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(string id, [FromBody] PlanTrabajoPuntoUpsert rowUpsert)
     {
         int Id = 0;
         if (!int.TryParse(id, out Id))
@@ -122,11 +117,8 @@ public class EmpresaController : ControllerBase
         if (documentToUpdate is null)
             return this.NoContent();
 
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
+        documentToUpdate.Descripcion = rowUpsert.Descripcion;
+        documentToUpdate.TipoPunto = rowUpsert.TipoPunto;
 
         try
         {
@@ -143,7 +135,7 @@ public class EmpresaController : ControllerBase
 
     [HttpDelete()]
     [Route("{id}")]
-    [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {

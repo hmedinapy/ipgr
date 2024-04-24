@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace API.Controllers.AnalisisRiesgos.Request;
 
-namespace API.Models;
-
-public partial class AnalisisRiesgo
+public class AnalisisRiesgoUpsert
 {
-    public int Id { get; set; }
-
     public int? IdArea { get; set; }
 
     public int? IdRiesgo { get; set; }
@@ -27,9 +22,6 @@ public partial class AnalisisRiesgo
 
     public string? NivelRiesgo { get; set; }
 
-    public bool? Activo { get; set; }
+    public bool Estado { get; set; } = true;
 
-    public virtual Area? IdAreaNavigation { get; set; }
-
-    public virtual Riesgo? IdRiesgoNavigation { get; set; }
 }

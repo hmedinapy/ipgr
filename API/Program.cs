@@ -1,5 +1,12 @@
 using API.Models;
+using API.Reposirory.AnalisisRiesgos;
 using API.Reposirory.Areas;
+using API.Reposirory.Departamentos;
+using API.Reposirory.Empresas;
+using API.Reposirory.PlanesTrabajos;
+using API.Reposirory.PlanesTrabajosPuntos;
+using API.Reposirory.Riesgos;
+using API.Reposirory.Roles;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -11,9 +18,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IAnalisisRiesgoRepository, AnalisisRiesgoRepository>();
 builder.Services.AddScoped<IAreaRepository, AreaRepository>();
-// .AddScoped<IDbProvider, MongoDbProvider>()
-//builder.Services.AddDbContext<DbTest3Context>();
+builder.Services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<IPlanTrabajoRepository, PlanTrabajoRepository>();
+builder.Services.AddScoped<IPlanTrabajoPuntoRepository, PlanTrabajoPuntoRepository>();
+builder.Services.AddScoped<IRiesgoRepository, RiesgoRepository>();
+builder.Services.AddScoped<IRolRepository, RolRepository>();
+
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
