@@ -1,5 +1,4 @@
 using API.Controllers.PlanesTrabajos.Request;
-using API.Controllers.Roles.Request;
 using API.Models;
 using API.Reposirory.PlanesTrabajos;
 using Azure;
@@ -33,7 +32,7 @@ public class PlanTrabajoController : ControllerBase
     }
 
     [HttpGet()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<List<PlanTrabajo>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
@@ -86,18 +85,12 @@ public class PlanTrabajoController : ControllerBase
     }
 
     [HttpPatch()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<PlanTrabajo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] PlanTrabajoUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(int id, [FromBody] PlanTrabajoUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -134,18 +127,12 @@ public class PlanTrabajoController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<PlanTrabajo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] PlanTrabajoUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(int id, [FromBody] PlanTrabajoUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -182,7 +169,7 @@ public class PlanTrabajoController : ControllerBase
     }
 
     [HttpDelete()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<PlanTrabajo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)

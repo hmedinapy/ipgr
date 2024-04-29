@@ -32,7 +32,7 @@ public class RiesgoController : ControllerBase
     }
 
     [HttpGet()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<List<Riesgo>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
@@ -68,18 +68,12 @@ public class RiesgoController : ControllerBase
     }
 
     [HttpPatch()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] RiesgoUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(int id, [FromBody] RiesgoUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -99,18 +93,12 @@ public class RiesgoController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] RiesgoUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(int id, [FromBody] RiesgoUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -130,7 +118,7 @@ public class RiesgoController : ControllerBase
     }
 
     [HttpDelete()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)

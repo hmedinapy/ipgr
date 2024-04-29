@@ -1,0 +1,14 @@
+-- todo
+. flujo completo
+	. íd:int como parametro, no string
+. fuente https://www.youtube.com/playlist?list=PLUOequmGnXxOgmSDWU7Tl6iQTsOtyjtwU
+  sorting, user reg and controller auth, login jwt, 
+  restrinc endpoint with roles, fluent validation, pagination
+
+. auth
+. fuente https://www.youtube.com/watch?v=0pcM6teVdKk&list=PL6n9fhu94yhW7yoUOGNOfHurUE6bpOO2b
+  auth, cross, 
+
+. clean use of API https://www.youtube.com/watch?v=PmDJIooZjBE&t=1339s
+
+. todas las interfaces de repo, deben pasar a ser IDbDataSet, ver ejemplo AreaRepository.

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Reposirory.AnalisisRiesgos
 {
-    public class AnalisisRiesgoRepository : IAnalisisRiesgoRepository
+    public class AnalisisRiesgoRepository : IDbDataSet<AnalisisRiesgo> // where T : AnalisisRiesgo // IAnalisisRiesgoRepository
     {
         private readonly DbTest3Context db;
         public AnalisisRiesgoRepository(DbTest3Context db)

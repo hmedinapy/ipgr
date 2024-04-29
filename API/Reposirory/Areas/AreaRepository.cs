@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Reposirory.Areas
 {
-    public class AreaRepository : IAreaRepository
+    public class AreaRepository : IDbDataSet<Area> // where T : AnalisisRiesgo // IAnalisisRiesgoRepository // : IAreaRepository
     {
         private readonly DbTest3Context db;
         public AreaRepository(DbTest3Context db)

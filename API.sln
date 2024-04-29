@@ -3,11 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{A57AC9C5-0238-40C4-9F7F-13A3A566957F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{A57AC9C5-0238-40C4-9F7F-13A3A566957F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{1D1C744E-C7F1-44B8-B996-32B3AE8C4F13}"
 	ProjectSection(SolutionItems) = preProject
 		readme.md = readme.md
+		Todo.txt = Todo.txt
 	EndProjectSection
 EndProject
 Global

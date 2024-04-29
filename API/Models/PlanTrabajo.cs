@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace API.Models;
 
@@ -44,14 +43,14 @@ public partial class PlanTrabajo
     public int IdUserCreada { get; set; }
 
     public bool? Activo { get; set; }
-
+    [JsonIgnore]
     public virtual Area? IdAreaAuditadaNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Usuario? IdAuditorAsignadoNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Departamento? IdDepartamentoNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Usuario? IdResponsableAreaAuditadaNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<PlanTrabajoPunto> PlanTrabajoPuntos { get; set; } = new List<PlanTrabajoPunto>();
 }

@@ -32,7 +32,7 @@ public class EmpresaController : ControllerBase
     }
 
     [HttpGet()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
@@ -72,18 +72,12 @@ public class EmpresaController : ControllerBase
     }
 
     [HttpPatch()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(int id, [FromBody] EmpresaUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -107,18 +101,12 @@ public class EmpresaController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(int id, [FromBody] EmpresaUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -142,7 +130,7 @@ public class EmpresaController : ControllerBase
     }
 
     [HttpDelete()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)

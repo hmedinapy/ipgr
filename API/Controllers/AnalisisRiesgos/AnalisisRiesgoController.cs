@@ -12,9 +12,10 @@ namespace API.Controllers.AnalisisRiesgos;
 public class AnalisisRiesgoController : ControllerBase
 {
     private readonly ILogger<AnalisisRiesgoController> _logger;
-    private readonly IAnalisisRiesgoRepository repository;
+    //private readonly IAnalisisRiesgoRepository repository;
+    private readonly IDbDataSet<AnalisisRiesgo> repository;
 
-    public AnalisisRiesgoController(ILogger<AnalisisRiesgoController> logger, IAnalisisRiesgoRepository repository)
+    public AnalisisRiesgoController(ILogger<AnalisisRiesgoController> logger, IDbDataSet<AnalisisRiesgo> repository)
     {
         _logger = logger;
         this.repository = repository;
@@ -33,7 +34,7 @@ public class AnalisisRiesgoController : ControllerBase
     }
 
     [HttpGet()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<List<AnalisisRiesgo>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
@@ -78,18 +79,12 @@ public class AnalisisRiesgoController : ControllerBase
     }
 
     [HttpPatch()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(int id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -118,18 +113,12 @@ public class AnalisisRiesgoController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(int id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -158,7 +147,7 @@ public class AnalisisRiesgoController : ControllerBase
     }
 
     [HttpDelete()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)

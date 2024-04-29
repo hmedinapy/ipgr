@@ -32,7 +32,7 @@ public class RolController : ControllerBase
     }
 
     [HttpGet()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<List<Rol>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
@@ -69,18 +69,12 @@ public class RolController : ControllerBase
     }
 
     [HttpPatch()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Rol>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] RolUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(int id, [FromBody] RolUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await db.Roles.FirstOrDefaultAsync(x => x.Id == Id);
+        var documentToUpdate = await db.Roles.FirstOrDefaultAsync(x => x.Id == id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -102,18 +96,12 @@ public class RolController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Rol>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] Rol rowUpsert)
+    public async Task<ActionResult> PutAsync(int id, [FromBody] Rol rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await db.Roles.FirstOrDefaultAsync(x => x.Id == Id);
+        var documentToUpdate = await db.Roles.FirstOrDefaultAsync(x => x.Id == id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -135,7 +123,7 @@ public class RolController : ControllerBase
     }
 
     [HttpDelete()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Rol>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)

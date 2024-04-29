@@ -1,4 +1,5 @@
 using API.Models;
+using API.Reposirory;
 using API.Reposirory.AnalisisRiesgos;
 using API.Reposirory.Areas;
 using API.Reposirory.Departamentos;
@@ -18,8 +19,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IAnalisisRiesgoRepository, AnalisisRiesgoRepository>();
-builder.Services.AddScoped<IAreaRepository, AreaRepository>();
+//builder.Services.AddScoped<IAnalisisRiesgoRepository, AnalisisRiesgoRepository>();
+builder.Services.AddScoped<IDbDataSet<AnalisisRiesgo>, AnalisisRiesgoRepository>();
+builder.Services.AddScoped<IDbDataSet<Area>, AreaRepository>();
 builder.Services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<IPlanTrabajoRepository, PlanTrabajoRepository>();

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace API.Models;
 
@@ -28,8 +27,8 @@ public partial class AnalisisRiesgo
     public string? NivelRiesgo { get; set; }
 
     public bool? Activo { get; set; }
-
+    [JsonIgnore]
     public virtual Area? IdAreaNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Riesgo? IdRiesgoNavigation { get; set; }
 }

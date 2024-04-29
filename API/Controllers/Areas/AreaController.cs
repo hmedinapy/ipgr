@@ -1,5 +1,6 @@
 using API.Controllers.Areas.Request;
 using API.Models;
+using API.Reposirory;
 using API.Reposirory.Areas;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +12,9 @@ namespace API.Controllers.Areas;
 public class AreaController : ControllerBase
 {
     private readonly ILogger<AreaController> _logger;
-    private readonly IAreaRepository repository;
+    private readonly IDbDataSet<Area> repository;
 
-    public AreaController(ILogger<AreaController> logger, IAreaRepository repository)
+    public AreaController(ILogger<AreaController> logger, IDbDataSet<Area> repository)
     {
         _logger = logger;
         this.repository = repository;
@@ -32,7 +33,7 @@ public class AreaController : ControllerBase
     }
 
     [HttpGet()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<List<Area>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
@@ -70,18 +71,12 @@ public class AreaController : ControllerBase
     }
 
     [HttpPatch()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PatchAsync(string id, [FromBody] AreaUpsert rowUpsert)
+    public async Task<ActionResult> PatchAsync(int id, [FromBody] AreaUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -102,18 +97,12 @@ public class AreaController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(string id, [FromBody] AreaUpsert rowUpsert)
+    public async Task<ActionResult> PutAsync(int id, [FromBody] AreaUpsert rowUpsert)
     {
-        int Id = 0;
-        if (!int.TryParse(id, out Id))
-        {
-            return this.BadRequest("Error en el parámetro.");
-        }
-
-        var documentToUpdate = await repository.GetOneAsync(Id);
+        var documentToUpdate = await repository.GetOneAsync(id);
         if (documentToUpdate is null)
             return this.NoContent();
 
@@ -134,7 +123,7 @@ public class AreaController : ControllerBase
     }
 
     [HttpDelete()]
-    [Route("{id}")]
+    [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
