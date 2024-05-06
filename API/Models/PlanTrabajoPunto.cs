@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace API.Models;
 
@@ -13,6 +14,6 @@ public partial class PlanTrabajoPunto
     public string TipoPunto { get; set; } = null!;
 
     public bool? Activo { get; set; }
-    [JsonIgnore]
+
     public virtual PlanTrabajo IdPlanTrabajoNavigation { get; set; } = null!;
 }

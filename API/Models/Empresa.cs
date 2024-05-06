@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace API.Models;
 
@@ -25,8 +26,8 @@ public partial class Empresa
     public DateTime? FechaModificacion { get; set; }
 
     public int? UsuarioModificacion { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<Area> Areas { get; set; } = new List<Area>();
-    [JsonIgnore]
+
     public virtual ICollection<Departamento> Departamentos { get; set; } = new List<Departamento>();
 }

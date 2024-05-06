@@ -20,8 +20,23 @@ public class DbDataSet<T> : IDbDataSet<T> where T : class
 
     }
 
-    //public Task<T?> GetOneAsync(int id);
-    //public Task<T> AddRowAsync(T document);
-    //public Task<T> UpdateAsync(T document);
-    //public Task<T> RemoveAsync(T document);
+    public Task<T?> GetOneAsync(int id)
+    {
+        return null;
+    }
+    public Task<T> AddRowAsync(T document)
+    {
+        return null;
+    }
+
+    public Task<T> UpdateAsync(T document)
+    {
+        return null;
+    }
+
+    public Task<T> RemoveAsync(T document)
+    {
+        return null;
+    }
+
 }

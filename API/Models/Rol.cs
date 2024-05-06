@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace API.Models;
 
@@ -9,6 +10,6 @@ public partial class Rol
     public string Descripcion { get; set; } = null!;
 
     public bool Activo { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<UserRol> UserRols { get; set; } = new List<UserRol>();
 }

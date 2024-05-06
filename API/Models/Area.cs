@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace API.Models;
 
@@ -14,12 +15,11 @@ public partial class Area
 
     public int? IdEmpresa { get; set; }
 
-    [JsonIgnore]
     public virtual ICollection<AnalisisRiesgo> AnalisisRiesgos { get; set; } = new List<AnalisisRiesgo>();
-    [JsonIgnore]
+
     public virtual Departamento IdDepartamentoNavigation { get; set; } = null!;
-    [JsonIgnore]
+
     public virtual Empresa? IdEmpresaNavigation { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<PlanTrabajo> PlanTrabajos { get; set; } = new List<PlanTrabajo>();
 }

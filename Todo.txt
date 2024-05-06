@@ -12,3 +12,6 @@
 . clean use of API https://www.youtube.com/watch?v=PmDJIooZjBE&t=1339s
 
 . todas las interfaces de repo, deben pasar a ser IDbDataSet, ver ejemplo AreaRepository.
+
+. Ultimate ASP.NET Core Web API Tutorial for Beginners - Trevor Williams
+	https://www.youtube.com/playlist?list=PLUl9BcvgsrKYa9mUygO9lIGow-1GaNWqs

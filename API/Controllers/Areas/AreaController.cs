@@ -3,6 +3,7 @@ using API.Models;
 using API.Reposirory;
 using API.Reposirory.Areas;
 using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Areas;
@@ -32,6 +33,7 @@ public class AreaController : ControllerBase
         return this.Ok(documents);
     }
 
+    [Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<List<Area>>), StatusCodes.Status200OK)]
