@@ -43,6 +43,11 @@ namespace API.Reposirory.Areas
             return document;
         }
 
+        public Task RemoveAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Area> UpdateAsync(Area document)
         {
             db.Areas.Update(document);

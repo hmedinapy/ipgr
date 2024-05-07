@@ -1,10 +1,13 @@
 ﻿using API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Configuration;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API.Extensions;
 
@@ -79,4 +82,26 @@ public static class ServiceIdentityExtension
         });
     }
 
+    public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+    {
+        app.UseExceptionHandler(error =>
+        {
+            error.Run(async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                context.Response.ContentType = "application/json";
+                var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                if (contextFeature != null)
+                {
+                    Log.Error($"Something Went Wrong in the {contextFeature.Error}");
+
+                    await context.Response.WriteAsync(new Models.Error
+                    {
+                        StatusCode = context.Response.StatusCode,
+                        Message = "Internal Server Error. Please Try Again Later."
+                    }.ToString());
+                }
+            });
+        });
+    }
 }

@@ -39,6 +39,11 @@ namespace API.Reposirory.AnalisisRiesgos
             return document;
         }
 
+        public Task RemoveAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<AnalisisRiesgo> UpdateAsync(AnalisisRiesgo document)
         {
             db.AnalisisRiesgos.Update(document);
