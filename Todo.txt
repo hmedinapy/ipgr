@@ -7,9 +7,23 @@
 	. fuente https://www.youtube.com/watch?v=0pcM6teVdKk&list=PL6n9fhu94yhW7yoUOGNOfHurUE6bpOO2b
 	  auth, cross, 
 
-. refactor
+	. refactor
 . fuente https://www.youtube.com/playlist?list=PLUOequmGnXxOgmSDWU7Tl6iQTsOtyjtwU
-  sorting, where, pagination, fluent validation
+	. sorting, where, pagination, 
+. fluent validation
 . clean use of API https://www.youtube.com/watch?v=PmDJIooZjBE&t=1339s
 . flujo completo
-. todas las interfaces de repo, deben pasar a ser IDbDataSet, ver ejemplo AreaRepository.
+	. todas las interfaces de repo, deben pasar a ser IDbDataSet, ver ejemplo AreaRepository.
+	. todas los controladores con el mapeo de clase a dto para responder.
+. // TODO remove SetEnvironmentVariable
+
+-- FE
+ . conectar
+ . login
+ . crud
+ . reportes
+
+
+ -- preguntar
+ . porque solo el método DeleteHardAsync, causa conflicto y los demás no?
+	public async Task<ActionResult> DeleteHardAsync(int id)

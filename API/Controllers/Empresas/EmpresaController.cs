@@ -1,8 +1,12 @@
-using API.Controllers.Empresas.Request;
-using API.Models;
-using API.Reposirory.Empresas;
+using API.Core.DTOs;
+using API.Core.Models;
+using API.Core.Repository;
+using API.Data.Entities;
+using AutoMapper;
 using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers.Empresas;
 
@@ -11,64 +15,56 @@ namespace API.Controllers.Empresas;
 public class EmpresaController : ControllerBase
 {
     private readonly ILogger<EmpresaController> _logger;
-    private readonly IEmpresaRepository repository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public EmpresaController(ILogger<EmpresaController> logger, IEmpresaRepository repository)
+    public EmpresaController(ILogger<EmpresaController> logger, IUnitOfWork _unitOfWork, IMapper mapper)
     {
         _logger = logger;
-        this.repository = repository;
+        this._unitOfWork = _unitOfWork;
+        _mapper = mapper;
     }
 
     [HttpGet()]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> GetAllAsync()
+    //[ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> GetAllAsync([FromQuery] RequestParams requestParams)
     {
-        var documents = await repository.GetAllAsync();
-        if (!documents.Any())
-            return this.NoContent();
-
-        return this.Ok(documents);
+        var documents = await _unitOfWork.Empresas.GetPagedList(requestParams);
+        var results = _mapper.Map<IList<EmpresaDTO>>(documents);
+        return Ok(results);
     }
 
+    [Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    //[ProducesResponseType(typeof(Response<List<Empresa>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
-        var document = await repository.GetOneAsync(id);
-        if (document is null)
-            return this.NoContent();
-
-        return this.Ok(document);
+        var document = await _unitOfWork.Empresas.Get(q => q.Id == id,
+            include: q => q.Include(x => x.Areas)
+            );
+        var result = _mapper.Map<EmpresaDTO>(document);
+        return Ok(result);
     }
 
     [HttpPost()]
     [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PostAsync(EmpresaUpsert rowUpsert)
+    public async Task<ActionResult> PostAsync([FromBody] EmpresaUpsert rowUpsert)
     {
-        var document = new Empresa
+        if (!ModelState.IsValid)
         {
-            Nombre = rowUpsert.Nombre,
-            Ruc = rowUpsert.Ruc,
-            Telefono = rowUpsert.Telefono,
-            Direccion = rowUpsert.Direccion,
-            CodigoEmpresa = rowUpsert.CodigoEmpresa,
-        };
+            _logger.LogError($"Invalid POST attempt in {nameof(PostAsync)}");
+            return BadRequest(ModelState);
+        }
 
-        try
-        {
-            await repository.AddRowAsync(document);
-            return this.Ok(document);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError($"Error al insertar. Message : {e.Message}");
-            _logger.LogError($"Error al insertar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
-        }
+        var document = _mapper.Map<Empresa>(rowUpsert);
+        await _unitOfWork.Empresas.Insert(document);
+        await _unitOfWork.Save();
+
+        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPatch()]
@@ -77,83 +73,107 @@ public class EmpresaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PatchAsync(int id, [FromBody] EmpresaUpsert rowUpsert)
     {
-        var documentToUpdate = await repository.GetOneAsync(id);
-        if (documentToUpdate is null)
-            return this.NoContent();
-
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
-
-        try
+        if (!ModelState.IsValid)
         {
-            await repository.UpdateAsync(documentToUpdate);
-            return this.Ok(documentToUpdate);
+            _logger.LogError($"Invalid POST attempt in {nameof(PostAsync)}");
+            return BadRequest(ModelState);
         }
-        catch (Exception e)
+
+        var document = await _unitOfWork.Empresas.Get(q => q.Id == id);
+        if (document == null)
         {
-            Console.WriteLine($"Error al actualizar. Message : {e.Message}");
-            Console.WriteLine($"Error al actualizar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
+            _logger.LogError($"Invalid UPDATE attempt in {nameof(PutAsync)}");
+            return BadRequest("Submitted data is invalid");
         }
+
+
+        document.Nombre = rowUpsert.Nombre;
+        document.Ruc = rowUpsert.Ruc;
+        document.Telefono = rowUpsert.Telefono;
+        document.Direccion = rowUpsert.Direccion;
+        document.CodigoEmpresa = rowUpsert.CodigoEmpresa;
+
+        _unitOfWork.Empresas.Update(document);
+        await _unitOfWork.Save();
+
+        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPut()]
     [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(int id, [FromBody] EmpresaUpsert rowUpsert)
+    public async Task<IActionResult> PutAsync(int id, [FromBody] EmpresaUpsert rowUpsert)
     {
-        var documentToUpdate = await repository.GetOneAsync(id);
-        if (documentToUpdate is null)
-            return this.NoContent();
-
-        documentToUpdate.Nombre = rowUpsert.Nombre;
-        documentToUpdate.Ruc = rowUpsert.Ruc;
-        documentToUpdate.Telefono = rowUpsert.Telefono;
-        documentToUpdate.Direccion = rowUpsert.Direccion;
-        documentToUpdate.CodigoEmpresa = rowUpsert.CodigoEmpresa;
-
-        try
+        if (!ModelState.IsValid || id < 1)
         {
-            await repository.UpdateAsync(documentToUpdate);
-            return this.Ok(documentToUpdate);
+            _logger.LogError($"Invalid UPDATE attempt in {nameof(PutAsync)}");
+            return BadRequest(ModelState);
         }
-        catch (Exception e)
+
+
+        var document = await _unitOfWork.Empresas.Get(q => q.Id == id);
+        if (document == null)
         {
-            _logger.LogError($"Error al modificar. Message : {e.Message}");
-            _logger.LogError($"Error al modificar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
+            _logger.LogError($"Invalid UPDATE attempt in {nameof(PutAsync)}");
+            return BadRequest("Submitted data is invalid");
         }
+
+        _mapper.Map(rowUpsert, document);
+        _unitOfWork.Empresas.Update(document);
+        await _unitOfWork.Save();
+
+        return Ok();
     }
 
-    [HttpDelete()]
-    [Route("{id:int}")]
+    [HttpPatch()]
+    [Route("active/{id:int}")]
     [ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
-        var document = await repository.GetOneAsync(id);
-        if (document is null)
-            return this.NoContent();
-
-        try
+        if (id < 1)
         {
-            // borrado lógico
-            document.Activo = false;
-            await repository.UpdateAsync(document);
+            _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteAsync)}");
+            return BadRequest();
+        }
 
-            // borrado fìsico
-            //await repository.RemoveAsync(document);
-            return this.Ok(document);
-        }
-        catch (Exception e)
+        var document = await _unitOfWork.Empresas.Get(q => q.Id == id);
+        if (document == null)
         {
-            _logger.LogError($"Error al eliminar. Message : {e.Message}");
-            _logger.LogError($"Error al eliminar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
+            _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteAsync)}");
+            return BadRequest("Submitted data is invalid");
         }
+
+        document.Activo = false;
+        _unitOfWork.Empresas.Update(document);
+        await _unitOfWork.Save();
+
+        return Ok();
     }
+
+    //[HttpDelete()]
+    //[Route("/hard/{id:int}")]
+    //[ProducesResponseType(typeof(Response<Empresa>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
+    //public async Task<ActionResult> DeleteHardAsync(int id)
+    //{
+    //    if (id < 1)
+    //    {
+    //        _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteHardAsync)}");
+    //        return BadRequest();
+    //    }
+
+    //    var document = await _unitOfWork.Empresas.Get(q => q.Id == id);
+    //    if (document == null)
+    //    {
+    //        _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteHardAsync)}");
+    //        return BadRequest("Submitted data is invalid");
+    //    }
+
+    //    await _unitOfWork.Empresas.Delete(id);
+    //    await _unitOfWork.Save();
+
+    //    return Ok();
+    //}
 }

@@ -1,18 +1,8 @@
+using API.Core.Repository;
+using API.Core.Services;
+using API.Data.Entities;
 using API.Extensions;
-using API.Models;
-using API.Reposirory;
-using API.Reposirory.AnalisisRiesgos;
-using API.Reposirory.Areas;
-using API.Reposirory.Departamentos;
-using API.Reposirory.Empresas;
-using API.Reposirory.PlanesTrabajos;
-using API.Reposirory.PlanesTrabajosPuntos;
-using API.Reposirory.Riesgos;
-using API.Reposirory.Roles;
-using API.Services;
-using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,20 +28,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwaggerDoc();
 builder.Services.AddSwaggerGen();
 
+builder.Services.ConfigureAutoMapper();
+
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
-builder.Services.AddScoped<IDbDataSet<AnalisisRiesgo>, AnalisisRiesgoRepository>();
-builder.Services.AddScoped<IDbDataSet<Area>, AreaRepository>();
-builder.Services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
-builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
-builder.Services.AddScoped<IPlanTrabajoRepository, PlanTrabajoRepository>();
-builder.Services.AddScoped<IPlanTrabajoPuntoRepository, PlanTrabajoPuntoRepository>();
-builder.Services.AddScoped<IRiesgoRepository, RiesgoRepository>();
-builder.Services.AddScoped<IRolRepository, RolRepository>();
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-builder.Services.AddDbContext<DbTest3Context>(options =>
+builder.Services.AddDbContext<DataBaseContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("DbTest5Context")));
 
 builder.Services.AddAuthentication();

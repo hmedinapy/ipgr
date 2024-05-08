@@ -1,7 +1,7 @@
-using API.Configurations;
-using API.DTOs;
-using API.Models;
-using API.Services;
+using API.Core.DTOs;
+using API.Core.Services;
+using API.Data.Entities;
+using API.Core.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,7 +39,7 @@ public class AccountController : ControllerBase
 
         try
         {
-            var user = userDTO.UserDTOToApiUser(); // _mapper.Map<ApiUser>(userDTO);
+            var user = userDTO.ApiUserToDTO(); // _mapper.Map<ApiUser>(userDTO);
             user.Email = userDTO.Email;
             user.UserName = userDTO.Email;
             var result = await _userManager.CreateAsync(user, userDTO.Password);
@@ -79,9 +79,10 @@ public class AccountController : ControllerBase
                 return Unauthorized();
             }
 
-            return Accepted(new TokenRequest { 
-                Token = await _authManager.CreateToken(), 
-                RefreshToken = await _authManager.CreateRefreshToken() 
+            return Accepted(new TokenRequest
+            {
+                Token = await _authManager.CreateToken(),
+                RefreshToken = await _authManager.CreateRefreshToken()
             });
         }
         catch (Exception ex)

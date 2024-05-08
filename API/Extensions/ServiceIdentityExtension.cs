@@ -1,13 +1,13 @@
-﻿using API.Models;
+﻿using API.Core.Models;
+using API.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using System.Configuration;
+using System.Reflection;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API.Extensions;
 
@@ -19,10 +19,10 @@ public static class ServiceIdentityExtension
 
         builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
         var jwtSettings = Configuration.GetSection("Jwt");
-        builder.AddTokenProvider(jwtSettings.GetSection("Issuer").Value, 
+        builder.AddTokenProvider(jwtSettings.GetSection("Issuer").Value,
             typeof(DataProtectorTokenProvider<ApiUser>));
 
-        builder.AddEntityFrameworkStores<DbTest3Context>().AddDefaultTokenProviders();
+        builder.AddEntityFrameworkStores<DataBaseContext>().AddDefaultTokenProviders();
     }
 
     public static void ConfigureJWT(this IServiceCollection services, IConfiguration Configuration)
@@ -95,13 +95,18 @@ public static class ServiceIdentityExtension
                 {
                     Log.Error($"Something Went Wrong in the {contextFeature.Error}");
 
-                    await context.Response.WriteAsync(new Models.Error
+                    await context.Response.WriteAsync(new Error
                     {
                         StatusCode = context.Response.StatusCode,
-                        Message = "Internal Server Error. Please Try Again Later."
+                        Message = contextFeature.Error.Message
                     }.ToString());
                 }
             });
         });
+    }
+
+    public static void ConfigureAutoMapper(this IServiceCollection services)
+    {
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     }
 }

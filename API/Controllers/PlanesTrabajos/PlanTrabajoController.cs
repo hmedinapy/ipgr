@@ -1,8 +1,12 @@
-using API.Controllers.PlanesTrabajos.Request;
-using API.Models;
-using API.Reposirory.PlanesTrabajos;
+using API.Core.DTOs;
+using API.Core.Models;
+using API.Core.Repository;
+using API.Data.Entities;
+using AutoMapper;
 using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers.PlanesTrabajos;
 
@@ -11,77 +15,56 @@ namespace API.Controllers.PlanesTrabajos;
 public class PlanTrabajoController : ControllerBase
 {
     private readonly ILogger<PlanTrabajoController> _logger;
-    private readonly IPlanTrabajoRepository repository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public PlanTrabajoController(ILogger<PlanTrabajoController> logger, IPlanTrabajoRepository repository)
+    public PlanTrabajoController(ILogger<PlanTrabajoController> logger, IUnitOfWork _unitOfWork, IMapper mapper)
     {
         _logger = logger;
-        this.repository = repository;
+        this._unitOfWork = _unitOfWork;
+        _mapper = mapper;
     }
 
     [HttpGet()]
-    [ProducesResponseType(typeof(Response<List<PlanTrabajo>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> GetAllAsync()
+    //[ProducesResponseType(typeof(Response<List<PlanTrabajo>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> GetAllAsync([FromQuery] RequestParams requestParams)
     {
-        var documents = await repository.GetAllAsync();
-        if (!documents.Any())
-            return this.NoContent();
-
-        return this.Ok(documents);
+        var documents = await _unitOfWork.PlanesTrabajos.GetPagedList(requestParams);
+        var results = _mapper.Map<IList<PlanTrabajoDTO>>(documents);
+        return Ok(results);
     }
 
+    [Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<List<PlanTrabajo>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    //[ProducesResponseType(typeof(Response<List<PlanTrabajo>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
-        var document = await repository.GetOneAsync(id);
-        if (document is null)
-            return this.NoContent();
-
-        return this.Ok(document);
+        var document = await _unitOfWork.PlanesTrabajos.Get(q => q.Id == id,
+            include: a => a.Include(x => x.IdAreaAuditadaNavigation)
+            );
+        var result = _mapper.Map<PlanTrabajoDTO>(document);
+        return Ok(result);
     }
 
     [HttpPost()]
     [ProducesResponseType(typeof(Response<PlanTrabajo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PostAsync(PlanTrabajoUpsert rowUpsert)
+    public async Task<ActionResult> PostAsync([FromBody] PlanTrabajoUpsert rowUpsert)
     {
-        var document = new PlanTrabajo
+        if (!ModelState.IsValid)
         {
-            Numero = rowUpsert.Numero,
-            Codigo = rowUpsert.Codigo,
-            // IdDetalleArea = rowUpsert.IdDetalleArea,
-            IdDepartamento = rowUpsert.IdDepartamento,
-            Objetivos = rowUpsert.Objetivos,
-            Procedimientos = rowUpsert.Procedimientos,
-            CantidadPersonas = rowUpsert.CantidadPersonas,
-            HorasNetas = rowUpsert.HorasNetas,
-            Productos = rowUpsert.Productos,
-            FechaIncioAuditoria = rowUpsert.FechaIncioAuditoria,
-            FechaFinAuditoria = rowUpsert.FechaFinAuditoria,
-            IdAuditorAsignado = rowUpsert.IdAuditorAsignado,
-            IdResponsableAreaAuditada = rowUpsert.IdResponsableAreaAuditada,
-            IdAreaAuditada = rowUpsert.IdAreaAuditada,
-            Estado = rowUpsert.Estado,
-            EnvioInforme = rowUpsert.EnvioInforme,
-            FechaCreada = rowUpsert.FechaCreada,
-            IdUserCreada = rowUpsert.IdUserCreada
-        };
+            _logger.LogError($"Invalid POST attempt in {nameof(PostAsync)}");
+            return BadRequest(ModelState);
+        }
 
-        try
-        {
-            await repository.AddRowAsync(document);
-            return this.Ok(document);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError($"Error al insertar. Message : {e.Message}");
-            _logger.LogError($"Error al insertar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
-        }
+        var document = _mapper.Map<PlanTrabajo>(rowUpsert);
+        await _unitOfWork.PlanesTrabajos.Insert(document);
+        await _unitOfWork.Save();
+
+        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPatch()]
@@ -90,109 +73,120 @@ public class PlanTrabajoController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PatchAsync(int id, [FromBody] PlanTrabajoUpsert rowUpsert)
     {
-        var documentToUpdate = await repository.GetOneAsync(id);
-        if (documentToUpdate is null)
-            return this.NoContent();
-
-        documentToUpdate.Numero = rowUpsert.Numero;
-        documentToUpdate.Codigo = rowUpsert.Codigo;
-        //documentToUpdate.IdDetalleArea = rowUpsert.IdDetalleArea;
-        documentToUpdate.IdDepartamento = rowUpsert.IdDepartamento;
-        documentToUpdate.Objetivos = rowUpsert.Objetivos;
-        documentToUpdate.Procedimientos = rowUpsert.Procedimientos;
-        documentToUpdate.CantidadPersonas = rowUpsert.CantidadPersonas;
-        documentToUpdate.HorasNetas = rowUpsert.HorasNetas;
-        documentToUpdate.Productos = rowUpsert.Productos;
-        documentToUpdate.FechaIncioAuditoria = rowUpsert.FechaIncioAuditoria;
-        documentToUpdate.FechaFinAuditoria = rowUpsert.FechaFinAuditoria;
-        documentToUpdate.IdAuditorAsignado = rowUpsert.IdAuditorAsignado;
-        documentToUpdate.IdResponsableAreaAuditada = rowUpsert.IdResponsableAreaAuditada;
-        documentToUpdate.IdAreaAuditada = rowUpsert.IdAreaAuditada;
-        documentToUpdate.Estado = rowUpsert.Estado;
-        documentToUpdate.EnvioInforme = rowUpsert.EnvioInforme;
-        documentToUpdate.FechaCreada = rowUpsert.FechaCreada;
-        documentToUpdate.IdUserCreada = rowUpsert.IdUserCreada;
-
-        try
+        if (!ModelState.IsValid)
         {
-            await repository.UpdateAsync(documentToUpdate);
-            return this.Ok(documentToUpdate);
+            _logger.LogError($"Invalid POST attempt in {nameof(PostAsync)}");
+            return BadRequest(ModelState);
         }
-        catch (Exception e)
+
+        var document = await _unitOfWork.PlanesTrabajos.Get(q => q.Id == id);
+        if (document == null)
         {
-            Console.WriteLine($"Error al actualizar. Message : {e.Message}");
-            Console.WriteLine($"Error al actualizar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
+            _logger.LogError($"Invalid UPDATE attempt in {nameof(PutAsync)}");
+            return BadRequest("Submitted data is invalid");
         }
+
+        document.Numero = rowUpsert.Numero;
+        document.Codigo = rowUpsert.Codigo;
+        document.IdDetalleArea = rowUpsert.IdDetalleArea;
+        document.IdDepartamento = rowUpsert.IdDepartamento;
+        document.Objetivos = rowUpsert.Objetivos;
+        document.Procedimientos = rowUpsert.Procedimientos;
+        document.CantidadPersonas = rowUpsert.CantidadPersonas;
+        document.HorasNetas = rowUpsert.HorasNetas;
+        document.Productos = rowUpsert.Productos;
+        document.FechaIncioAuditoria = rowUpsert.FechaIncioAuditoria;
+        document.FechaFinAuditoria = rowUpsert.FechaFinAuditoria;
+        document.IdAuditorAsignado = rowUpsert.IdAuditorAsignado;
+        document.IdResponsableAreaAuditada = rowUpsert.IdResponsableAreaAuditada;
+        document.IdAreaAuditada = rowUpsert.IdAreaAuditada;
+        document.Estado = rowUpsert.Estado;
+        document.EnvioInforme = rowUpsert.EnvioInforme;
+        document.FechaCreada = rowUpsert.FechaCreada;
+        document.IdUserCreada = rowUpsert.IdUserCreada;
+        document.Activo = rowUpsert.Activo;
+
+        _unitOfWork.PlanesTrabajos.Update(document);
+        await _unitOfWork.Save();
+
+        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPut()]
     [Route("{id:int}")]
     [ProducesResponseType(typeof(Response<PlanTrabajo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> PutAsync(int id, [FromBody] PlanTrabajoUpsert rowUpsert)
+    public async Task<IActionResult> PutAsync(int id, [FromBody] PlanTrabajoUpsert rowUpsert)
     {
-        var documentToUpdate = await repository.GetOneAsync(id);
-        if (documentToUpdate is null)
-            return this.NoContent();
-
-        documentToUpdate.Numero = rowUpsert.Numero;
-        documentToUpdate.Codigo = rowUpsert.Codigo;
-        //documentToUpdate.IdDetalleArea = rowUpsert.IdDetalleArea;
-        documentToUpdate.IdDepartamento = rowUpsert.IdDepartamento;
-        documentToUpdate.Objetivos = rowUpsert.Objetivos;
-        documentToUpdate.Procedimientos = rowUpsert.Procedimientos;
-        documentToUpdate.CantidadPersonas = rowUpsert.CantidadPersonas;
-        documentToUpdate.HorasNetas = rowUpsert.HorasNetas;
-        documentToUpdate.Productos = rowUpsert.Productos;
-        documentToUpdate.FechaIncioAuditoria = rowUpsert.FechaIncioAuditoria;
-        documentToUpdate.FechaFinAuditoria = rowUpsert.FechaFinAuditoria;
-        documentToUpdate.IdAuditorAsignado = rowUpsert.IdAuditorAsignado;
-        documentToUpdate.IdResponsableAreaAuditada = rowUpsert.IdResponsableAreaAuditada;
-        documentToUpdate.IdAreaAuditada = rowUpsert.IdAreaAuditada;
-        documentToUpdate.Estado = rowUpsert.Estado;
-        documentToUpdate.EnvioInforme = rowUpsert.EnvioInforme;
-        documentToUpdate.FechaCreada = rowUpsert.FechaCreada;
-        documentToUpdate.IdUserCreada = rowUpsert.IdUserCreada;
-
-        try
+        if (!ModelState.IsValid || id < 1)
         {
-            await repository.UpdateAsync(documentToUpdate);
-            return this.Ok(documentToUpdate);
+            _logger.LogError($"Invalid UPDATE attempt in {nameof(PutAsync)}");
+            return BadRequest(ModelState);
         }
-        catch (Exception e)
+
+
+        var document = await _unitOfWork.PlanesTrabajos.Get(q => q.Id == id);
+        if (document == null)
         {
-            _logger.LogError($"Error al modificar. Message : {e.Message}");
-            _logger.LogError($"Error al modificar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
+            _logger.LogError($"Invalid UPDATE attempt in {nameof(PutAsync)}");
+            return BadRequest("Submitted data is invalid");
         }
+
+        _mapper.Map(rowUpsert, document);
+        _unitOfWork.PlanesTrabajos.Update(document);
+        await _unitOfWork.Save();
+
+        return Ok();
     }
 
-    [HttpDelete()]
-    [Route("{id:int}")]
+    [HttpPatch()]
+    [Route("active/{id:int}")]
     [ProducesResponseType(typeof(Response<PlanTrabajo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
-        var document = await repository.GetOneAsync(id);
-        if (document is null)
-            return this.NoContent();
-
-        try
+        if (id < 1)
         {
-            // borrado lógico
-            document.Activo = false;
-            await repository.UpdateAsync(document);
+            _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteAsync)}");
+            return BadRequest();
+        }
 
-            // borrado fìsico
-            //await repository.RemoveAsync(document);
-            return this.Ok(document);
-        }
-        catch (Exception e)
+        var document = await _unitOfWork.PlanesTrabajos.Get(q => q.Id == id);
+        if (document == null)
         {
-            _logger.LogError($"Error al eliminar. Message : {e.Message}");
-            _logger.LogError($"Error al eliminar. StackTrace : {e.StackTrace}");
-            return this.BadRequest();
+            _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteAsync)}");
+            return BadRequest("Submitted data is invalid");
         }
+
+        document.Activo = false;
+        _unitOfWork.PlanesTrabajos.Update(document);
+        await _unitOfWork.Save();
+
+        return Ok();
     }
+
+    //[HttpDelete()]
+    //[Route("/hard/{id:int}")]
+    //[ProducesResponseType(typeof(Response<PlanTrabajo>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status204NoContent)]
+    //public async Task<ActionResult> DeleteHardAsync(int id)
+    //{
+    //    if (id < 1)
+    //    {
+    //        _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteHardAsync)}");
+    //        return BadRequest();
+    //    }
+
+    //    var document = await _unitOfWork.PlanesTrabajos.Get(q => q.Id == id);
+    //    if (document == null)
+    //    {
+    //        _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteHardAsync)}");
+    //        return BadRequest("Submitted data is invalid");
+    //    }
+
+    //    await _unitOfWork.PlanesTrabajos.Delete(id);
+    //    await _unitOfWork.Save();
+
+    //    return Ok();
+    //}
 }
