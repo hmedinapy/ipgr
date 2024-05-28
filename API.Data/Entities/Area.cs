@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace API.Data.Entities;
 
-public class Area
+public partial class Area
 {
     public int Id { get; set; }
 
@@ -20,6 +20,4 @@ public class Area
     public virtual Departamento IdDepartamentoNavigation { get; set; } = null!;
 
     public virtual Empresa? IdEmpresaNavigation { get; set; }
-
-    public virtual ICollection<PlanTrabajo> PlanTrabajos { get; set; } = new List<PlanTrabajo>();
 }

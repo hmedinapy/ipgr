@@ -16,6 +16,8 @@
 	. todas las interfaces de repo, deben pasar a ser IDbDataSet, ver ejemplo AreaRepository.
 	. todas los controladores con el mapeo de clase a dto para responder.
 . // TODO remove SetEnvironmentVariable
+Environment.SetEnvironmentVariable("KEY", "this is my custom Secret key for authentication");
+
 
 -- FE
  . conectar
@@ -23,7 +25,8 @@
  . crud
  . reportes
 
-
  -- preguntar
  . porque solo el método DeleteHardAsync, causa conflicto y los demás no?
 	public async Task<ActionResult> DeleteHardAsync(int id)
+ . puedo desacoplar el còdigo de generar sql de la BD? o siempre debe tener esa creaciòn?
+   ej. dbContext, tiene diferencia el ùltimo commit vs. el generado, debo actualizar siempre con el comando y luego agregar las particularidades de mi proyecto?

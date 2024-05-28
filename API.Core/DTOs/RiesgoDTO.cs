@@ -5,6 +5,7 @@ namespace API.Core.DTOs
 {
     public class RiesgoDTO
     {
+        public int Id { get; set; }
         public string Descripcion { get; set; } = null!;
 
         public int? UserCreado { get; set; }

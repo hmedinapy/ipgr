@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace API.Data.Entities;
+﻿namespace API.Data.Entities;
 
 public partial class Departamento
 {

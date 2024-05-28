@@ -7,6 +7,8 @@ public partial class AnalisisRiesgo
 {
     public int Id { get; set; }
 
+    public string? Codigo { get; set; }
+
     public int? IdArea { get; set; }
 
     public int? IdRiesgo { get; set; }

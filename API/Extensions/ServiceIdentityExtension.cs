@@ -3,6 +3,7 @@ using API.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -15,12 +16,12 @@ public static class ServiceIdentityExtension
 {
     public static void ConfigureIdentity(this IServiceCollection services, IConfiguration Configuration)
     {
-        var builder = services.AddIdentityCore<ApiUser>(x => x.User.RequireUniqueEmail = true);
+        var builder = services.AddIdentityCore<IdentityUser>(x => x.User.RequireUniqueEmail = true);
 
         builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
         var jwtSettings = Configuration.GetSection("Jwt");
         builder.AddTokenProvider(jwtSettings.GetSection("Issuer").Value,
-            typeof(DataProtectorTokenProvider<ApiUser>));
+            typeof(DataProtectorTokenProvider<IdentityUser>));
 
         builder.AddEntityFrameworkStores<DataBaseContext>().AddDefaultTokenProviders();
     }
@@ -93,7 +94,10 @@ public static class ServiceIdentityExtension
                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                 if (contextFeature != null)
                 {
-                    Log.Error($"Something Went Wrong in the {contextFeature.Error}");
+                    Log.Error($"Something Went Wrong. Check error : {contextFeature.Error}");
+
+                    if (contextFeature.Error.InnerException != null)
+                        Log.Error($"Check Inner error : {contextFeature.Error.InnerException.Message}");
 
                     await context.Response.WriteAsync(new Error
                     {
@@ -109,4 +113,14 @@ public static class ServiceIdentityExtension
     {
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     }
+
+    public static void ApplyMigrations(this IApplicationBuilder app)
+    {
+        IServiceScope service = app.ApplicationServices.CreateScope();
+        
+        DataBaseContext context = service.ServiceProvider.GetRequiredService<DataBaseContext>();
+
+        context.Database.Migrate();
+    }
+
 }

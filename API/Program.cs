@@ -1,8 +1,10 @@
 using API.Core.Repository;
-using API.Core.Services;
 using API.Data.Entities;
 using API.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +33,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.ConfigureAutoMapper();
 
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IAuthManager, AuthManager>();
+//builder.Services.AddScoped<IAuthManager, AuthManager>();
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -39,12 +41,13 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddDbContext<DataBaseContext>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("DbTest5Context")));
 
-builder.Services.AddAuthentication();
-builder.Services.ConfigureIdentity(Configuration: configuration);
+builder.Services.AddAuthorization();
+
+builder.Services.AddIdentityApiEndpoints<ApiUser>()
+    .AddEntityFrameworkStores<DataBaseContext>();
 
 // TODO remove SetEnvironmentVariable
 Environment.SetEnvironmentVariable("KEY", "this is my custom Secret key for authentication");
-builder.Services.ConfigureJWT(Configuration: configuration);
 
 builder.Services.AddCors(o =>
 {
@@ -61,14 +64,14 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ApplyMigrations();
 }
 
 app.ConfigureExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 
-app.UseAuthorization();
-
 app.MapControllers();
+app.MapIdentityApi<ApiUser>();
 
 app.Run();

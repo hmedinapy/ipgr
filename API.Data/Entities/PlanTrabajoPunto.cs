@@ -11,6 +11,9 @@ public partial class PlanTrabajoPunto
 
     public string Descripcion { get; set; } = null!;
 
+    /// <summary>
+    /// L : levantamiento - D : descargo
+    /// </summary>
     public string TipoPunto { get; set; } = null!;
 
     public bool? Activo { get; set; }

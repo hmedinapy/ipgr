@@ -3,7 +3,6 @@ using API.Core.Models;
 using API.Core.Repository;
 using API.Data.Entities;
 using AutoMapper;
-using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,11 +25,14 @@ public class AreaController : ControllerBase
     }
 
     [HttpGet()]
-    //[ProducesResponseType(typeof(Response<List<Area>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<Area>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync([FromQuery] RequestParams requestParams)
     {
         var documents = await _unitOfWork.Areas.GetPagedList(requestParams);
+        if (documents.Count == 0)
+            return NoContent();
+
         var results = _mapper.Map<IList<AreaDTO>>(documents);
         return Ok(results);
     }
@@ -38,17 +40,20 @@ public class AreaController : ControllerBase
     [Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
-    //[ProducesResponseType(typeof(Response<List<Area>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<Area>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
         var document = await _unitOfWork.Areas.Get(q => q.Id == id, include: q => q.Include(x => x.IdDepartamentoNavigation));
+        if (document == null)
+            return NoContent();
+
         var result = _mapper.Map<AreaDTO>(document);
         return Ok(result);
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Area>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PostAsync([FromBody] AreaUpsert rowUpsert)
     {
@@ -62,12 +67,12 @@ public class AreaController : ControllerBase
         await _unitOfWork.Areas.Insert(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPatch()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Area>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PatchAsync(int id, [FromBody] AreaUpsert rowUpsert)
     {
@@ -92,12 +97,12 @@ public class AreaController : ControllerBase
         _unitOfWork.Areas.Update(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPut()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Area>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> PutAsync(int id, [FromBody] AreaUpsert rowUpsert)
     {
@@ -124,7 +129,7 @@ public class AreaController : ControllerBase
 
     [HttpPatch()]
     [Route("active/{id:int}")]
-    [ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Area>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
@@ -150,7 +155,7 @@ public class AreaController : ControllerBase
 
     //[HttpDelete()]
     //[Route("/hard/{id:int}")]
-    //[ProducesResponseType(typeof(Response<Area>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<Area>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     //public async Task<ActionResult> DeleteHardAsync(int id)
     //{

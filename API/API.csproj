@@ -7,33 +7,37 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\Account\**" />
     <Compile Remove="Controllers\Roles\**" />
     <Compile Remove="Migrations - copia\**" />
     <Compile Remove="Models - copia\**" />
+    <Compile Remove="ModelsCheck-1\**" />
+    <Compile Remove="ModelsCheck\**" />
+    <Content Remove="Controllers\Account\**" />
     <Content Remove="Controllers\Roles\**" />
     <Content Remove="Migrations - copia\**" />
     <Content Remove="Models - copia\**" />
+    <Content Remove="ModelsCheck-1\**" />
+    <Content Remove="ModelsCheck\**" />
+    <EmbeddedResource Remove="Controllers\Account\**" />
     <EmbeddedResource Remove="Controllers\Roles\**" />
     <EmbeddedResource Remove="Migrations - copia\**" />
     <EmbeddedResource Remove="Models - copia\**" />
+    <EmbeddedResource Remove="ModelsCheck-1\**" />
+    <EmbeddedResource Remove="ModelsCheck\**" />
+    <None Remove="Controllers\Account\**" />
     <None Remove="Controllers\Roles\**" />
     <None Remove="Migrations - copia\**" />
     <None Remove="Models - copia\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Migrations\20240501082914_AddedIdentity.cs" />
-    <Compile Remove="Migrations\20240501082914_AddedIdentity.Designer.cs" />
-    <Compile Remove="Migrations\20240503111832_AddedDefaultRoles.cs" />
-    <Compile Remove="Migrations\20240503111832_AddedDefaultRoles.Designer.cs" />
+    <None Remove="ModelsCheck-1\**" />
+    <None Remove="ModelsCheck\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -41,10 +45,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
     <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

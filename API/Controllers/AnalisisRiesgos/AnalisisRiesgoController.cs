@@ -1,6 +1,7 @@
 using API.Core.DTOs;
 using API.Core.Models;
 using API.Core.Repository;
+using API.Core.Services;
 using API.Data.Entities;
 using AutoMapper;
 using Azure;
@@ -26,31 +27,36 @@ public class AnalisisRiesgoController : ControllerBase
     }
 
     [HttpGet()]
-    //[ProducesResponseType(typeof(Response<List<AnalisisRiesgo>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<AnalisisRiesgo>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync([FromQuery] RequestParams requestParams)
     {
         var documents = await _unitOfWork.AnalisisRiesgos.GetPagedList(requestParams);
+        if (documents.Count == 0)
+            return NoContent();
+
         var results = _mapper.Map<IList<AnalisisRiesgoDTO>>(documents);
         return Ok(results);
     }
 
-    [Authorize(Roles = "Administrador")]
+    //[Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
-    //[ProducesResponseType(typeof(Response<List<AnalisisRiesgo>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<AnalisisRiesgo>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
         var document = await _unitOfWork.AnalisisRiesgos.Get(q => q.Id == id, 
-            include: q => q.Include(x => x.IdAreaNavigation)
-            );
+            include: q => q.Include(x => x.IdAreaNavigation));
+        if (document == null)
+            return NoContent();
+
         var result = _mapper.Map<AnalisisRiesgoDTO>(document);
         return Ok(result);
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PostAsync([FromBody] AnalisisRiesgoUpsert rowUpsert)
     {
@@ -64,12 +70,12 @@ public class AnalisisRiesgoController : ControllerBase
         await _unitOfWork.AnalisisRiesgos.Insert(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPatch()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PatchAsync(int id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
     {
@@ -101,12 +107,12 @@ public class AnalisisRiesgoController : ControllerBase
         _unitOfWork.AnalisisRiesgos.Update(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPut()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> PutAsync(int id, [FromBody] AnalisisRiesgoUpsert rowUpsert)
     {
@@ -133,7 +139,7 @@ public class AnalisisRiesgoController : ControllerBase
 
     [HttpPatch()]
     [Route("active/{id:int}")]
-    [ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
@@ -159,7 +165,7 @@ public class AnalisisRiesgoController : ControllerBase
 
     //[HttpDelete()]
     //[Route("hard/{id:int}")]
-    //[ProducesResponseType(typeof(Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<AnalisisRiesgo>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     //public async Task<ActionResult> DeleteHardAsync(int id)
     //{

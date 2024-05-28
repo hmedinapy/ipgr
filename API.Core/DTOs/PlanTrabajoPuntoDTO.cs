@@ -5,6 +5,7 @@ namespace API.Core.DTOs
 {
     public class PlanTrabajoPuntoDTO
     {
+        public int Id { get; set; }
         public int IdPlanTrabajo { get; set; }
 
         public string Descripcion { get; set; } = null!;

@@ -1,4 +1,5 @@
 ﻿using API.Data.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,11 +52,11 @@ namespace API.Core.DTOs
 
         public virtual Area? IdAreaAuditadaNavigation { get; set; }
 
-        public virtual Usuario? IdAuditorAsignadoNavigation { get; set; }
+        public virtual IdentityUser? IdAuditorAsignadoNavigation { get; set; }
 
         public virtual Departamento? IdDepartamentoNavigation { get; set; }
 
-        public virtual Usuario? IdResponsableAreaAuditadaNavigation { get; set; }
+        public virtual IdentityUser? IdResponsableAreaAuditadaNavigation { get; set; }
 
         public virtual ICollection<PlanTrabajoPunto> PlanTrabajoPuntos { get; set; } = new List<PlanTrabajoPunto>();
     }

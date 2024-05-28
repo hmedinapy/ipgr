@@ -6,8 +6,6 @@ public class PlanTrabajoUpsert
 
     public string? Codigo { get; set; }
 
-    public int? IdDetalleArea { get; set; }
-
     public int? IdDepartamento { get; set; }
 
     public string? Objetivos { get; set; }
@@ -27,8 +25,6 @@ public class PlanTrabajoUpsert
     public int? IdAuditorAsignado { get; set; }
 
     public int? IdResponsableAreaAuditada { get; set; }
-
-    public int? IdAreaAuditada { get; set; }
 
     public string Estado { get; set; } = null!;
     public bool Activo { get; set; } = true;

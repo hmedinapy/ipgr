@@ -13,5 +13,5 @@ public partial class Riesgo
 
     public bool? Activo { get; set; }
 
-    // public virtual ICollection<AnalisisRiesgo> AnalisisRiesgos { get; set; } = new List<AnalisisRiesgo>();
+    public virtual ICollection<AnalisisRiesgo> AnalisisRiesgos { get; set; } = new List<AnalisisRiesgo>();
 }

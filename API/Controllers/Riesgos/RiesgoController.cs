@@ -1,12 +1,12 @@
 using API.Core.DTOs;
 using API.Core.Models;
 using API.Core.Repository;
+using API.Core.Services;
 using API.Data.Entities;
 using AutoMapper;
 using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers.Riesgos;
 
@@ -26,29 +26,35 @@ public class RiesgoController : ControllerBase
     }
 
     [HttpGet()]
-    //[ProducesResponseType(typeof(Response<List<Riesgo>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<Riesgo>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync([FromQuery] RequestParams requestParams)
     {
         var documents = await _unitOfWork.Riesgos.GetPagedList(requestParams);
+        if (documents.Count == 0)
+            return NoContent();
+
         var results = _mapper.Map<IList<RiesgoDTO>>(documents);
         return Ok(results);
     }
 
-    [Authorize(Roles = "Administrador")]
+    //[Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
-    //[ProducesResponseType(typeof(Response<List<Riesgo>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<Riesgo>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
         var document = await _unitOfWork.Riesgos.Get(q => q.Id == id);
+        if (document == null)
+            return NoContent();
+
         var result = _mapper.Map<RiesgoDTO>(document);
         return Ok(result);
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Riesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PostAsync([FromBody] RiesgoUpsert rowUpsert)
     {
@@ -62,12 +68,12 @@ public class RiesgoController : ControllerBase
         await _unitOfWork.Riesgos.Insert(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPatch()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Riesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PatchAsync(int id, [FromBody] RiesgoUpsert rowUpsert)
     {
@@ -89,12 +95,12 @@ public class RiesgoController : ControllerBase
         _unitOfWork.Riesgos.Update(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPut()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Riesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> PutAsync(int id, [FromBody] RiesgoUpsert rowUpsert)
     {
@@ -121,7 +127,7 @@ public class RiesgoController : ControllerBase
 
     [HttpPatch()]
     [Route("active/{id:int}")]
-    [ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Riesgo>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
@@ -147,7 +153,7 @@ public class RiesgoController : ControllerBase
 
     //[HttpDelete()]
     //[Route("/hard/{id:int}")]
-    //[ProducesResponseType(typeof(Response<Riesgo>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<Riesgo>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     //public async Task<ActionResult> DeleteHardAsync(int id)
     //{

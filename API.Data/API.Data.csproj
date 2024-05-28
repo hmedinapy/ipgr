@@ -7,19 +7,46 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.2" />
-	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.2" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.2">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.2" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.2">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	  <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.1" />
+    <Compile Remove="EntitiesBBB\**" />
+    <Compile Remove="EntitiesToCheck\**" />
+    <Compile Remove="ModelsCheck-2\**" />
+    <Compile Remove="ModelsCheckAA\**" />
+    <Compile Remove="ModelsCheck\**" />
+    <EmbeddedResource Remove="EntitiesBBB\**" />
+    <EmbeddedResource Remove="EntitiesToCheck\**" />
+    <EmbeddedResource Remove="ModelsCheck-2\**" />
+    <EmbeddedResource Remove="ModelsCheckAA\**" />
+    <EmbeddedResource Remove="ModelsCheck\**" />
+    <None Remove="EntitiesBBB\**" />
+    <None Remove="EntitiesToCheck\**" />
+    <None Remove="ModelsCheck-2\**" />
+    <None Remove="ModelsCheckAA\**" />
+    <None Remove="ModelsCheck\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Configurations\RoleConfiguration.cs" />
+    <Compile Remove="Entities\DataBaseContext - Copia.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configurations\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
   </ItemGroup>
 
 </Project>

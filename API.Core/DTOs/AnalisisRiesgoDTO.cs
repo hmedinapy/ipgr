@@ -4,6 +4,7 @@ namespace API.Core.DTOs
 {
     public class AnalisisRiesgoDTO
     {
+        public int Id { get; set; }
         public int? IdArea { get; set; }
 
         public int? IdRiesgo { get; set; }

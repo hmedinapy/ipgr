@@ -1,6 +1,7 @@
 using API.Core.DTOs;
 using API.Core.Models;
 using API.Core.Repository;
+using API.Core.Services;
 using API.Data.Entities;
 using AutoMapper;
 using Azure;
@@ -26,31 +27,37 @@ public class PlanTrabajoPuntoController : ControllerBase
     }
 
     [HttpGet()]
-    //[ProducesResponseType(typeof(Response<List<PlanTrabajoPunto>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<PlanTrabajoPunto>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync([FromQuery] RequestParams requestParams)
     {
         var documents = await _unitOfWork.PlanesTrabajosPuntos.GetPagedList(requestParams);
+        if (documents.Count == 0)
+            return NoContent();
+
         var results = _mapper.Map<IList<PlanTrabajoPuntoDTO>>(documents);
         return Ok(results);
     }
 
-    [Authorize(Roles = "Administrador")]
+    //[Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
-    //[ProducesResponseType(typeof(Response<List<PlanTrabajoPunto>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<PlanTrabajoPunto>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
         var document = await _unitOfWork.PlanesTrabajosPuntos.Get(q => q.Id == id,
             include: q => q.Include(x => x.IdPlanTrabajoNavigation)
             );
+        if (document == null)
+            return NoContent();
+
         var result = _mapper.Map<PlanTrabajoPuntoDTO>(document);
         return Ok(result);
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PostAsync([FromBody] PlanTrabajoPuntoUpsert rowUpsert)
     {
@@ -64,12 +71,12 @@ public class PlanTrabajoPuntoController : ControllerBase
         await _unitOfWork.PlanesTrabajosPuntos.Insert(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPatch()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PatchAsync(int id, [FromBody] PlanTrabajoPuntoUpsert rowUpsert)
     {
@@ -94,12 +101,12 @@ public class PlanTrabajoPuntoController : ControllerBase
         _unitOfWork.PlanesTrabajosPuntos.Update(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPut()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> PutAsync(int id, [FromBody] PlanTrabajoPuntoUpsert rowUpsert)
     {
@@ -126,7 +133,7 @@ public class PlanTrabajoPuntoController : ControllerBase
 
     [HttpPatch()]
     [Route("active/{id:int}")]
-    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
@@ -152,7 +159,7 @@ public class PlanTrabajoPuntoController : ControllerBase
 
     [HttpDelete()]
     [Route("/hard/{id:int}")]
-    [ProducesResponseType(typeof(Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<PlanTrabajoPunto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteHardAsync(int id)
     {

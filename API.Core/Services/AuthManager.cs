@@ -10,10 +10,10 @@ using System.Text;
 namespace API.Core.Services;
 public class AuthManager : IAuthManager
 {
-    private readonly UserManager<ApiUser> _userManager;
+    private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
-    private ApiUser _user;
-    public AuthManager(UserManager<ApiUser> userManager,
+    private IdentityUser _user;
+    public AuthManager(UserManager<IdentityUser> userManager,
         IConfiguration configuration)
     {
         _userManager = userManager;

@@ -1,15 +1,10 @@
-﻿using API.Data.Configurations;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data.Entities;
 
 public partial class DataBaseContext : IdentityDbContext<ApiUser>
 {
-    public DataBaseContext()
-    {
-    }
-
     public DataBaseContext(DbContextOptions<DataBaseContext> options)
         : base(options)
     {
@@ -25,30 +20,24 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
 
     public virtual DbSet<PlanTrabajo> PlanesTrabajos { get; set; }
 
+    public virtual DbSet<PlanTrabajoCronograma> PlanTrabajoCronogramas { get; set; }
+
     public virtual DbSet<PlanTrabajoPunto> PlanesTrabajosPuntos { get; set; }
 
     public virtual DbSet<Riesgo> Riesgos { get; set; }
 
-    public virtual DbSet<Rol> Roles { get; set; }
-
-    public virtual DbSet<UserRol> UserRols { get; set; }
-
-    public virtual DbSet<Usuario> Usuarios { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
-    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-    //        => optionsBuilder.UseSqlServer("Data Source=W4Q0SL33;Initial Catalog=dbTest3;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("name=DefaultConnection");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.ApplyConfiguration(new RoleConfiguration());
-
         modelBuilder.Entity<AnalisisRiesgo>(entity =>
         {
             entity.ToTable("analisis_riesgo");
+
+            entity.HasIndex(e => e.IdArea, "IX_analisis_riesgo_id_area");
+
+            entity.HasIndex(e => e.IdRiesgo, "IX_analisis_riesgo_id_riesgo");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activo).HasColumnName("activo");
@@ -60,6 +49,10 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("causa");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(5)
+                .IsFixedLength()
+                .HasColumnName("codigo");
             entity.Property(e => e.Efecto)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -75,7 +68,7 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
             entity.Property(e => e.Probabilidad).HasColumnName("probabilidad");
             entity.Property(e => e.Resultado).HasColumnName("resultado");
             entity.Property(e => e.Significado)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasColumnName("significado");
 
@@ -83,14 +76,18 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
                 .HasForeignKey(d => d.IdArea)
                 .HasConstraintName("FK_analisis_riesgo_area");
 
-            //entity.HasOne(d => d.IdRiesgoNavigation).WithMany(p => p.AnalisisRiesgos)
-            //    .HasForeignKey(d => d.IdRiesgo)
-            //    .HasConstraintName("FK_analisis_riesgo_riesgo");
+            entity.HasOne(d => d.IdRiesgoNavigation).WithMany(p => p.AnalisisRiesgos)
+                .HasForeignKey(d => d.IdRiesgo)
+                .HasConstraintName("FK_analisis_riesgo_riesgo");
         });
 
         modelBuilder.Entity<Area>(entity =>
         {
             entity.ToTable("area");
+
+            entity.HasIndex(e => e.IdDepartamento, "IX_area_id_departamento");
+
+            entity.HasIndex(e => e.IdEmpresa, "IX_area_id_empresa");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activo)
@@ -116,6 +113,8 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
         modelBuilder.Entity<Departamento>(entity =>
         {
             entity.ToTable("departamento");
+
+            entity.HasIndex(e => e.IdEmpresa, "IX_departamento_id_empresa");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activo)
@@ -176,6 +175,12 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
         {
             entity.ToTable("plan_trabajo");
 
+            entity.HasIndex(e => e.IdAuditorAsignado, "IX_plan_trabajo_id_auditor_asignado");
+
+            entity.HasIndex(e => e.IdDepartamento, "IX_plan_trabajo_id_departamento");
+
+            entity.HasIndex(e => e.IdResponsableAreaAuditada, "IX_plan_trabajo_id_responsable_area_auditada");
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activo).HasColumnName("activo");
             entity.Property(e => e.CantidadPersonas).HasColumnName("cantidad_personas");
@@ -199,43 +204,51 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
             entity.Property(e => e.FechaFinAuditoria).HasColumnName("fecha_fin_auditoria");
             entity.Property(e => e.FechaIncioAuditoria).HasColumnName("fecha_incio_auditoria");
             entity.Property(e => e.HorasNetas).HasColumnName("horas_netas");
-            entity.Property(e => e.IdAreaAuditada).HasColumnName("id_area_auditada");
+            entity.Property(e => e.IdArea).HasColumnName("id_area");
             entity.Property(e => e.IdAuditorAsignado).HasColumnName("id_auditor_asignado");
             entity.Property(e => e.IdDepartamento).HasColumnName("id_departamento");
-            entity.Property(e => e.IdDetalleArea).HasColumnName("id_detalle_area");
             entity.Property(e => e.IdResponsableAreaAuditada).HasColumnName("id_responsable_area_auditada");
             entity.Property(e => e.IdUserCreada).HasColumnName("id_user_creada");
             entity.Property(e => e.Numero).HasColumnName("numero");
             entity.Property(e => e.Objetivos)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasColumnName("objetivos");
             entity.Property(e => e.Procedimientos)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasColumnName("procedimientos");
             entity.Property(e => e.Productos).HasColumnName("productos");
 
-            entity.HasOne(d => d.IdAreaAuditadaNavigation).WithMany(p => p.PlanTrabajos)
-                .HasForeignKey(d => d.IdAreaAuditada)
-                .HasConstraintName("FK_plan_trabajo_area");
-
-            entity.HasOne(d => d.IdAuditorAsignadoNavigation).WithMany(p => p.PlanTrabajoIdAuditorAsignadoNavigations)
-                .HasForeignKey(d => d.IdAuditorAsignado)
-                .HasConstraintName("FK_plan_trabajo_usuario");
-
             entity.HasOne(d => d.IdDepartamentoNavigation).WithMany(p => p.PlanTrabajos)
                 .HasForeignKey(d => d.IdDepartamento)
                 .HasConstraintName("FK_plan_trabajo_departamento");
+        });
 
-            entity.HasOne(d => d.IdResponsableAreaAuditadaNavigation).WithMany(p => p.PlanTrabajoIdResponsableAreaAuditadaNavigations)
-                .HasForeignKey(d => d.IdResponsableAreaAuditada)
-                .HasConstraintName("FK_plan_trabajo_usuario1");
+        modelBuilder.Entity<PlanTrabajoCronograma>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.IdPlanTrabajo });
+
+            entity.ToTable("plan_trabajo_cronograma");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("id");
+            entity.Property(e => e.IdPlanTrabajo).HasColumnName("id_plan_trabajo");
+            entity.Property(e => e.CantidadHoras).HasColumnName("cantidad_horas");
+            entity.Property(e => e.Fecha).HasColumnName("fecha");
+
+            entity.HasOne(d => d.IdPlanTrabajoNavigation).WithMany(p => p.PlanTrabajoCronogramas)
+                .HasForeignKey(d => d.IdPlanTrabajo)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_plan_trabajo_cronog_plan_trabajo");
         });
 
         modelBuilder.Entity<PlanTrabajoPunto>(entity =>
         {
             entity.ToTable("plan_trabajo_puntos");
+
+            entity.HasIndex(e => e.IdPlanTrabajo, "IX_plan_trabajo_puntos_id_plan_trabajo");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activo).HasColumnName("activo");
@@ -249,6 +262,7 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
                 .IsUnicode(false)
                 .HasDefaultValue("L")
                 .IsFixedLength()
+                .HasComment("L : levantamiento - D : descargo")
                 .HasColumnName("tipo_punto");
 
             entity.HasOne(d => d.IdPlanTrabajoNavigation).WithMany(p => p.PlanTrabajoPuntos)
@@ -268,83 +282,6 @@ public partial class DataBaseContext : IdentityDbContext<ApiUser>
                 .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.UserCreado).HasColumnName("user_creado");
-        });
-
-        modelBuilder.Entity<Rol>(entity =>
-        {
-            entity.ToTable("rol");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Activo)
-                .HasDefaultValue(true)
-                .HasColumnName("activo");
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("descripcion");
-        });
-
-        modelBuilder.Entity<UserRol>(entity =>
-        {
-            entity.ToTable("user_rol");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Activo)
-                .HasDefaultValue(true)
-                .HasColumnName("activo");
-            entity.Property(e => e.IdRol).HasColumnName("id_rol");
-            entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
-
-            entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.UserRols)
-                .HasForeignKey(d => d.IdRol)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_user_rol_rol");
-
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.UserRols)
-                .HasForeignKey(d => d.IdUsuario)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_user_rol_usuario");
-        });
-
-        modelBuilder.Entity<Usuario>(entity =>
-        {
-            entity.ToTable("usuario");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Activo)
-                .HasDefaultValue(true)
-                .HasColumnName("activo");
-            entity.Property(e => e.Apellido)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("apellido");
-            entity.Property(e => e.Clave)
-                .HasColumnType("text")
-                .HasColumnName("clave");
-            entity.Property(e => e.Direccion)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("direccion");
-            entity.Property(e => e.FechaCreada)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnName("fecha_creada");
-            entity.Property(e => e.IdEmpresa).HasColumnName("id_empresa");
-            entity.Property(e => e.Mail)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("mail");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("nombre");
-            entity.Property(e => e.Telefono)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("telefono");
-            entity.Property(e => e.Usuario1)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("usuario");
         });
 
         OnModelCreatingPartial(modelBuilder);

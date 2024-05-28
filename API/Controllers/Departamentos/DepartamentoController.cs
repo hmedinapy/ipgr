@@ -1,6 +1,7 @@
 using API.Core.DTOs;
 using API.Core.Models;
 using API.Core.Repository;
+using API.Core.Services;
 using API.Data.Entities;
 using AutoMapper;
 using Azure;
@@ -26,19 +27,22 @@ public class DepartamentoController : ControllerBase
     }
 
     [HttpGet()]
-    //[ProducesResponseType(typeof(Response<List<Departamento>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<Departamento>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetAllAsync([FromQuery] RequestParams requestParams)
     {
         var documents = await _unitOfWork.Departamentos.GetPagedList(requestParams);
+        if (documents.Count == 0)
+            return NoContent();
+
         var results = _mapper.Map<IList<DepartamentoDTO>>(documents);
         return Ok(results);
     }
 
-    [Authorize(Roles = "Administrador")]
+    //[Authorize(Roles = "Administrador")]
     [HttpGet()]
     [Route("{id:int}")]
-    //[ProducesResponseType(typeof(Response<List<Departamento>>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<List<Departamento>>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> GetOneAsync(int id)
     {
@@ -46,12 +50,15 @@ public class DepartamentoController : ControllerBase
             include: q => q.Include(x => x.Areas)
             .Include(x => x.IdEmpresaNavigation)
             );
+        if (document == null)
+            return NoContent();
+
         var result = _mapper.Map<DepartamentoDTO>(document);
         return Ok(result);
     }
 
     [HttpPost()]
-    [ProducesResponseType(typeof(Response<Departamento>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Departamento>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PostAsync([FromBody] DepartamentoUpsert rowUpsert)
     {
@@ -65,12 +72,12 @@ public class DepartamentoController : ControllerBase
         await _unitOfWork.Departamentos.Insert(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPatch()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<Departamento>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Departamento>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> PatchAsync(int id, [FromBody] DepartamentoUpsert rowUpsert)
     {
@@ -94,12 +101,12 @@ public class DepartamentoController : ControllerBase
         _unitOfWork.Departamentos.Update(document);
         await _unitOfWork.Save();
 
-        return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
+        return Ok(document); //return CreatedAtRoute("GetOneAsync", new { id = document.Id }, document);
     }
 
     [HttpPut()]
     [Route("{id:int}")]
-    [ProducesResponseType(typeof(Response<Departamento>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Departamento>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> PutAsync(int id, [FromBody] DepartamentoUpsert rowUpsert)
     {
@@ -126,7 +133,7 @@ public class DepartamentoController : ControllerBase
 
     [HttpPatch()]
     [Route("active/{id:int}")]
-    [ProducesResponseType(typeof(Response<Departamento>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Core.Services.Response<Departamento>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
@@ -152,7 +159,7 @@ public class DepartamentoController : ControllerBase
 
     //[HttpDelete()]
     //[Route("/hard/{id:int}")]
-    //[ProducesResponseType(typeof(Response<Departamento>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(Core.Services.Response<Departamento>), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status204NoContent)]
     //public async Task<ActionResult> DeleteHardAsync(int id)
     //{

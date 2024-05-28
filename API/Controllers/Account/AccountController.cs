@@ -11,11 +11,11 @@ namespace API.Controllers.Areas;
 [Route("[controller]")]
 public class AccountController : ControllerBase
 {
-    private readonly UserManager<ApiUser> _userManager;
+    private readonly UserManager<IdentityUser> _userManager;
     private readonly ILogger<AccountController> _logger;
     private readonly IAuthManager _authManager;
 
-    public AccountController(UserManager<ApiUser> userManager,
+    public AccountController(UserManager<IdentityUser> userManager,
         ILogger<AccountController> logger,
         IAuthManager authManager)
     {
@@ -39,7 +39,7 @@ public class AccountController : ControllerBase
 
         try
         {
-            var user = userDTO.ApiUserToDTO(); // _mapper.Map<ApiUser>(userDTO);
+            var user = new IdentityUser(); // userDTO.IdentityUserToDTO(); // _mapper.Map<IdentityUser>(userDTO);
             user.Email = userDTO.Email;
             user.UserName = userDTO.Email;
             var result = await _userManager.CreateAsync(user, userDTO.Password);
