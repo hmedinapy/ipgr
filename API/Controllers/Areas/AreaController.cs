@@ -37,7 +37,7 @@ public class AreaController : ControllerBase
         return Ok(results);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Auditado")]
     [HttpGet()]
     [Route("{id:int}")]
     //[ProducesResponseType(typeof(Core.Services.Response<List<Area>>), StatusCodes.Status200OK)]

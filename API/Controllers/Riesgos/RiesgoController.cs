@@ -1,11 +1,8 @@
 using API.Core.DTOs;
 using API.Core.Models;
 using API.Core.Repository;
-using API.Core.Services;
 using API.Data.Entities;
 using AutoMapper;
-using Azure;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Riesgos;

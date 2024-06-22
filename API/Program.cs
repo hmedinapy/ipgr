@@ -3,9 +3,6 @@ using API.Data.Entities;
 using API.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +25,7 @@ builder.Services.AddCors(o =>
         .AllowAnyHeader());
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.ConfigureSwaggerDoc();
+//builder.Services.ConfigureSwaggerDoc();
 builder.Services.AddSwaggerGen();
 
 builder.Services.ConfigureAutoMapper();
@@ -44,7 +41,22 @@ builder.Services.AddDbContext<DataBaseContext>(options =>
 
 builder.Services.AddAuthorization();
 
+//builder.Services.AddIdentityCore<IdentityUser>(x => x.User.RequireUniqueEmail = true)
+//    .AddRoles<IdentityRole>();
+//builder.Services
+//    .AddDefaultIdentity<IdentityUser>()
+//    .AddRoles<IdentityRole>();
+
+//builder.Services.AddDefaultIdentity<IdentityUser>()
+//    .AddRoles<IdentityRole>()...
+
+//builder.Services.AddIdentity<IdentityUser, ApiUser>(
+//    options => options.SignIn.RequireConfirmedAccount = true)
+//    .AddRoles<IdentityDbContext>()
+//    .AddEntityFrameworkStores<IdentityDbContext>();
+
 builder.Services.AddIdentityApiEndpoints<ApiUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DataBaseContext>();
 
 // TODO remove SetEnvironmentVariable
@@ -71,6 +83,9 @@ if (app.Environment.IsDevelopment())
 app.ConfigureExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapIdentityApi<ApiUser>();
