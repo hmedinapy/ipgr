@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers.Riesgos;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class RiesgoController : ControllerBase
 {
     private readonly ILogger<RiesgoController> _logger;

@@ -19,7 +19,6 @@ namespace Ipgr.Front.Repository
 
         public async Task<string?> GetErrorMessageAsync()
         {
-            //video 4 - 12.25
             if (Error)
             {
                 return null;

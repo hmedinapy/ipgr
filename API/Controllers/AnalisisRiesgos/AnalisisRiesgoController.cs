@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers.AnalisisRiesgos;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AnalisisRiesgoController : ControllerBase
 {
     private readonly ILogger<AnalisisRiesgoController> _logger;

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers.Empresas;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class EmpresaController : ControllerBase
 {
     private readonly ILogger<EmpresaController> _logger;

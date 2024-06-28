@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers.Areas;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AreaController : ControllerBase
 {
     private readonly ILogger<AreaController> _logger;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork; 
     private readonly IMapper _mapper;
 
     public AreaController(ILogger<AreaController> logger, IUnitOfWork _unitOfWork, IMapper mapper)

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers.PlanesTrabajosPuntos;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class PlanTrabajoPuntoController : ControllerBase
 {
     private readonly ILogger<PlanTrabajoPuntoController> _logger;

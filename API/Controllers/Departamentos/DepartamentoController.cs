@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers.Departamentos;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class DepartamentoController : ControllerBase
 {
     private readonly ILogger<DepartamentoController> _logger;

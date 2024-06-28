@@ -1,3 +1,6 @@
+. Zulu - Tutorial 72 - Parte 08 - Crear un nuevo país - 42.45
+https://www.youtube.com/watch?v=mKpkMDl85Ns&list=PLuEZQoW9bRnRBThyGs208ZMrCYBRTvIg2&index=8
+
 . Ultimate ASP.NET Core Web API Tutorial for Beginners - Trevor Williams
 	https://www.youtube.com/playlist?list=PLUl9BcvgsrKYa9mUygO9lIGow-1GaNWqs
 

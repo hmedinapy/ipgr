@@ -1,6 +1,4 @@
-﻿
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 namespace Ipgr.Front.Repository
@@ -23,7 +21,7 @@ namespace Ipgr.Front.Repository
             var responsehttp = await _httpClient.GetAsync(url);
             if (responsehttp.IsSuccessStatusCode)
             {
-                var response = await UnserializeAnswer<T>(responsehttp);
+                var response = await UnserializeAnswerAsync<T>(responsehttp);
                 return new HttpResponseWrapper<T>(response, false, responsehttp);
             }
             return new HttpResponseWrapper<T>(default, true, responsehttp);
@@ -46,13 +44,42 @@ namespace Ipgr.Front.Repository
             var responsehttp = await _httpClient.PostAsync(url, messageContent);
             if (responsehttp.IsSuccessStatusCode)
             {
-                var response = await UnserializeAnswer<TActionResponse>(responsehttp);
+                var response = await UnserializeAnswerAsync<TActionResponse>(responsehttp);
                 return new HttpResponseWrapper<TActionResponse>(response, false, responsehttp);
             }
             return new HttpResponseWrapper<TActionResponse>(default, true, responsehttp);
         }
 
-        private async Task<T> UnserializeAnswer<T>(HttpResponseMessage responsehttp)
+        public async Task<HttpResponseWrapper<object>> DeleteAsync<T>(string url)
+        {
+            var responsehttp = await _httpClient.DeleteAsync(url);
+            return new HttpResponseWrapper<object>(null, !responsehttp.IsSuccessStatusCode, responsehttp);
+        }
+
+        public async Task<HttpResponseWrapper<object>> PutAsync<T>(string url, T model)
+        {
+            var messageJson = JsonSerializer.Serialize(model);
+            var messageContent = new StringContent(messageJson, Encoding.UTF8, "application/json");
+
+            var responsehttp = await _httpClient.PutAsync(url, messageContent);
+            return new HttpResponseWrapper<object>(null, !responsehttp.IsSuccessStatusCode, responsehttp);
+        }
+
+        public async Task<HttpResponseWrapper<TActionResponse>> PutAsync<T, TActionResponse>(string url, T model)
+        {
+            var messageJson = JsonSerializer.Serialize(model);
+            var messageContent = new StringContent(messageJson, Encoding.UTF8, "application/json");
+
+            var responsehttp = await _httpClient.PutAsync(url, messageContent);
+            if (responsehttp.IsSuccessStatusCode)
+            {
+                var response = await UnserializeAnswerAsync<TActionResponse>(responsehttp);
+                return new HttpResponseWrapper<TActionResponse>(response, false, responsehttp);
+            }
+            return new HttpResponseWrapper<TActionResponse>(default, true, responsehttp);
+        }
+
+        private async Task<T> UnserializeAnswerAsync<T>(HttpResponseMessage responsehttp)
         {
             var response = await responsehttp.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(response, _jsonSerializerOptions)!;

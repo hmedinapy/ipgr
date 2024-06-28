@@ -1,0 +1,32 @@
+﻿@page "/areas"
+
+<h3>Areas</h3>
+
+<div class="mb-3">
+    <a class="btn btn-primary" href="/areas/create">Nueva Area</a>
+</div>
+<GenericList MyList="Areas">
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Area</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var area in Areas!)
+                {
+                    <tr>
+                        <td>@area.Descripcion</td>
+                        <td>
+                            <a class="btn btn-warning">Editar</a>
+                            <button class="btn btn-danger">Borrar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </Body>
+</GenericList>
